@@ -1,0 +1,12 @@
+[workspace]
+members = ["projects/*"]
+default-members = [
+    "projects/awsl-ast",
+    "projects/awsl-pest",
+    "projects/awsl-parser",
+    "projects/awsl-fmt",
+]
+
+[profile.release]
+lto = true
+opt-level = "s"
