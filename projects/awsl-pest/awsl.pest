@@ -13,7 +13,7 @@ statement = {
     expression
 }
 /*====================================================================================================================*/
-emptyStatement = {eos | Separate}
+emptyStatement = {eos}
 eos = {Semicolon}
 comma_or_semi = _{Comma|Semicolon}
 block_or_stmt = _{block|Set ~ statement}
@@ -48,11 +48,8 @@ if_else_block = _{Else ~ block}
 If = @{"if"}
 Else = @{"else"}
 /*====================================================================================================================*/
-for_statement = {For ~ for_in_loop}
-for_in_loop = {SYMBOL~In~expr~block}
-//!#C678DD: For|In
-For = @{"for"}
-In = @{"in"}
+for_statement = {"for" ~ SYMBOL ~ "in"~expr~block}
+for_in_loop = {SYMBOL~"in"~expr~block}
 /*====================================================================================================================*/
 re_control = {
     Return ~ expr
@@ -69,8 +66,8 @@ Pass = @{"pass"}
 ///#C678DD
 Type = @{"type"}
 /*====================================================================================================================*/
-classStatement = {Class ~ assign_pair ~ short_block?}
-traitStatement = {Trait ~ assign_pair ~ short_block?}
+classStatement = {"class" ~ assign_pair ~ short_block?}
+traitStatement = {"trait" ~ assign_pair ~ short_block?}
 
 short_block = {"{" ~ short_statement* ~ "}"}
 short_statement = {
@@ -80,9 +77,6 @@ short_statement = {
   | short_annotation ~ eos?
 }
 short_annotation = {annotation_call+~short_statement}
-//!#C678DD: Trait|Class
-Trait = @{"trait"}
-Class = @{"class"}
 /*====================================================================================================================*/
 extendStatement = {
     Extend ~ Symbol ~ parametric_types? ~ with_trait? ~ short_block
@@ -120,7 +114,7 @@ Where = @{"where"}
 /*====================================================================================================================*/
 //!Orange:annotation_call
 annotation = {annotation_call+~statement}
-annotation_call = @{At~(list|apply|Symbol)}
+annotation_call = @{"@"~(list|apply|Symbol)}
 /*====================================================================================================================*/
 apply = !{
      generic_type? ~ "(" ~ apply_kv? ~ (Comma ~ apply_kv)* ~ Comma? ~")"
@@ -156,12 +150,12 @@ parametric_types_term = {Where ~ (expr ~ Colon ~ expr ~ eos?)+}
 //TypeSuffix = @{Question}
 TypeInfix = @{Or}
 /*====================================================================================================================*/
-template = _{EmptyTemplate|OpenClose|SelfClose}
+template = {EmptyTemplate|OpenClose|SelfClose}
 EmptyTemplate = {"<>" ~ "</>"|"</>"}
 OpenClose = {"<" ~ PUSH(Symbol) ~ ">" ~ text_mode ~ "</" ~ POP ~ ">" }
 SelfClose = {"<" ~ PUSH(Symbol) ~ text_mode ~ POP ~ "/>" }
 text_mode = ${
-    "{" ~ statement* ~ "}" | text_char*
+    "{" ~ statement* ~ "}"|template
 }
 text_char = @{
     (!("{"|"}"|"<"|">") ~ ANY)|
@@ -190,15 +184,15 @@ False   = @{"false"}
 /*====================================================================================================================*/
 ///#D19A66
 Byte     = ${Byte_BIN|Byte_OCT|Byte_HEX}
-Byte_BIN = ${Zero ~ B ~ (Underline? ~ ASCII_BIN_DIGIT)+}
-Byte_OCT = ${Zero ~ O ~ (Underline? ~ ASCII_OCT_DIGIT)+}
-Byte_HEX = ${Zero ~ X ~ (Underline? ~ ASCII_HEX_DIGIT)+}
+Byte_BIN = ${"0" ~ ("b"|"B") ~ (Underline? ~ ASCII_BIN_DIGIT)+}
+Byte_OCT = ${"0" ~ ("o"|"O") ~ (Underline? ~ ASCII_OCT_DIGIT)+}
+Byte_HEX = ${"0" ~ ("x"|"X") ~ (Underline? ~ ASCII_HEX_DIGIT)+}
 /*====================================================================================================================*/
 //!#D19A66: Integer|Decimal|DecimalBad
 Number     = ${Complex|Decimal|DecimalBad|Integer}
 Decimal    = ${Integer ~ Dot ~ ASCII_DIGIT+}
 DecimalBad = ${Integer ~ Dot|Dot ~ ASCII_DIGIT+}
-Integer    = @{Zero|ASCII_NONZERO_DIGIT ~ (Underline? ~ ASCII_DIGIT)*}
+Integer    = @{"0"|ASCII_NONZERO_DIGIT ~ (Underline? ~ ASCII_DIGIT)*}
 Complex    = {(Decimal|Integer)~ SYMBOL}
 /*====================================================================================================================*/
 //!#3C963C: String
@@ -235,14 +229,8 @@ SYMBOL = @{
   | Underline ~ XID_CONTINUE+
 }
 /*====================================================================================================================*/
-Zero = _{"0"}
-X = _{"x"|"X"}
-O = _{"o"|"O"}
-B = _{"b"|"B"}
-/*====================================================================================================================*/
 //!Orange: Modifier
-Keywords = !{If|For}
-Modifier = !{(!(SYMBOL~(Set|Comma|Colon|Semicolon|"{"|"}"|"("|")"|"<"|">")) ~SYMBOL)}
+Modifier = !{(!(SYMBOL~(Set|Colon|Semicolon|"{"|"}"|"("|")"|"<"|">")) ~SYMBOL)}
 //!#56B6C2: Prefix|Infix|Postfix
 Prefix = @{
     (Bang|Plus|Minus|Star)
@@ -254,7 +242,6 @@ Infix = _{
     Set
   | (Plus|Minus)
   | Power
-  | (Grater|GraterEqual|Equal)
   | Dot
 }
 
@@ -270,10 +257,9 @@ Slash =@{"/"}
 Solidus = @{"\\"}
 
 Proportion = @{"::"|"∷"}//U+2237
-Comma =@{","|"，"} //U+FF0C
 Dot = @{"."}
-Separate = @{";;"}
-Semicolon = @{";" | "；"} //U+FF1B
+Comma = @{","}
+Semicolon = @{";"} //U+FF1B
 Colon = @{":"|"："} //U+FF1A
 ///#56B6C2
 Question=@{"?"}
@@ -287,8 +273,6 @@ LeftShift =@{"<<"|"≪"} //U+226A
 RightShift =@{">>"|"≫"} //U+226B
 LessEqual =@{"<="}
 GraterEqual =@{">="}
-Less =@{"<"}
-Grater =@{">"}
 
 
 
@@ -318,7 +302,6 @@ To =@{"->"}
 
 
 Elvis =@{":?"}
-Map =@ {"/@"}
 
 
 Quote =@{"`"}
@@ -347,7 +330,3 @@ Destruct =@{"~="}
 Bang =@{"!"}
 
 Sharp =@{"#"}
-
-Curry =@{"@@@"}
-Apply =@{"@@"}
-At    =@{"@"}

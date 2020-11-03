@@ -2,7 +2,7 @@
     "private": true,
     "scripts": {
         "up": "cargo publish --allow-dirty",
-        "gen": "",
+        "pest": "cargo test --color=always --test main gen_parser --no-fail-fast -- --ignored --exact -Z unstable-options --format=json --show-output && cargo fmt",
         "fmt": "cargo fmt"
     }
 }
