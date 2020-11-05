@@ -79,9 +79,9 @@ short_statement = {
 short_annotation = {annotation_call+~short_statement}
 /*====================================================================================================================*/
 extendStatement = {
-    Extend ~ Symbol ~ parametric_types? ~ with_trait? ~ short_block
+    Extend ~ Symbol ~ with_trait? ~ short_block
 }
-with_trait = {With ~ Symbol ~ parametric_types?}
+with_trait = {With ~ Symbol}
 
 //!#C678DD: Extend|With
 Extend = @{"extend"}
@@ -89,8 +89,8 @@ With = @{"with"}
 /*====================================================================================================================*/
 assignStatement = {Let ~ assign_terms}
 assign_terms = _{
-    "(" ~ assign_name ~ ")" ~ type_hint? ~ block_or_stmt?
-  | assign_name ~ type_hint? ~ block_or_stmt?
+    "(" ~ assign_name ~ ")" ~ block_or_stmt?
+  | assign_name ~ block_or_stmt?
 }
 assign_name = _{assign_pair ~ (Comma ~ assign_pair)* ~ Comma?}
 assign_pair = {Modifier* ~ Symbol}
@@ -100,14 +100,13 @@ Let = @{"let"}
 /*====================================================================================================================*/
 defineStatement = {Def ~ define_terms}
 define_terms = _{
-    assign_pair ~ parametric_types ~ define_parameter ~ type_hint? ~ parametric_types_term? ~ block_or_stmt?
-  | assign_pair ~ define_parameter ~ type_hint? ~ block_or_stmt?
+    assign_pair ~ define_parameter ~ block_or_stmt?
 }
 define_parameter = {
     "(" ~ define_pair ~ (Comma ~ define_pair)* ~ Comma? ~ ")"
   | "(" ~ ")"
 }
-define_pair = {SYMBOL ~ type_hint? ~ (Set ~ expr)?}
+define_pair = {SYMBOL ~ (Set ~ expr)?}
 //!#C678DD: Def|Where
 Def = @{"def"}
 Where = @{"where"}
@@ -117,7 +116,7 @@ annotation = {annotation_call+~statement}
 annotation_call = @{"@"~(list|apply|Symbol)}
 /*====================================================================================================================*/
 apply = !{
-     generic_type? ~ "(" ~ apply_kv? ~ (Comma ~ apply_kv)* ~ Comma? ~")"
+     "(" ~ apply_kv? ~ (Comma ~ apply_kv)* ~ Comma? ~")"
 }
 apply_kv = {SYMBOL~ Colon ~ expr|expr}
 
@@ -137,30 +136,18 @@ bracket_apply = {Symbol ~ dict}
 condition  = _{"(" ~ expr ~ ")"|expr}
 dot_call = {term~ Dot ~ (Integer|Symbol) }
 /*====================================================================================================================*/
-//!#E06C75: type_hint|generic_type|parametric_types_pair
-type_expr = _{term~ (TypeInfix ~term)*}
-//type_term = {Prefix* ~ type_node ~ Suffix*}
-//type_node = {"(" ~ type_expr ~ ")"|data}
-type_hint = {Colon ~ type_expr}
-generic_type = {"<" ~ expr ~ (Comma ~ expr)* ~ Comma? ~ ">"}
-parametric_types = {"<" ~ parametric_types_pair ~ (Comma ~ parametric_types_pair)* ~ ">"}
-parametric_types_pair = {(Plus|Minus)? ~ SYMBOL}
-parametric_types_term = {Where ~ (expr ~ Colon ~ expr ~ eos?)+}
-//TypePrefix = @{Plus|Minus}
-//TypeSuffix = @{Question}
-TypeInfix = @{Or}
-/*====================================================================================================================*/
-template = {EmptyTemplate|OpenClose|SelfClose}
-EmptyTemplate = {"<>" ~ "</>"|"</>"}
-OpenClose = {"<" ~ PUSH(Symbol) ~ ">" ~ text_mode ~ "</" ~ POP ~ ">" }
-SelfClose = {"<" ~ PUSH(Symbol) ~ text_mode ~ POP ~ "/>" }
+template = {EmptyTemplate|Fragment|OpenClose|SelfClose}
+EmptyTemplate = {"</>"}
+Fragment = {"<>" ~ text_mode ~ "</>" }
+OpenClose = {"<" ~ PUSH(Symbol) ~ ">" ~ text_mode+ ~ "</" ~ POP ~ ">" }
+SelfClose = {"<" ~ PUSH(Symbol) ~ text_mode+ ~ POP ~ "/>" }
 text_mode = ${
-    "{" ~ statement* ~ "}"|template
+    "{" ~ statement* ~ "}"|template+|text_char+
 }
 text_char = @{
-    (!("{"|"}"|"<"|">") ~ ANY)|
-    "{{"|
-    "}}"
+    (!("{"|"}"|"<"|">"|"///") ~ ANY)|
+    "{{"| "}}" |
+    "<<" | ">>"
 }
 /*====================================================================================================================*/
 data = ${template|dict|list|Null|Unit|Boolean|Byte|Number|String|Symbol}
