@@ -4,7 +4,6 @@ statement = {
     emptyStatement  |
     importStatement ~ eos?  |
     classStatement ~ eos?  |
-    traitStatement ~ eos?  |
     extendStatement ~ eos?  |
     controlFlow ~ eos?  |
     assignStatement ~ eos?  |
@@ -20,33 +19,26 @@ block_or_stmt = _{block|Set ~ statement}
 /*====================================================================================================================*/
 //FIXME: 修复 nested using
 importStatement = {
-    Import ~ Dot* ~ use_alias
-  | Import ~ Dot* ~ use_module_select
-  | Import ~ use_module_string
+    "import" ~ Dot* ~ use_alias
+  | "import" ~ Dot* ~ use_module_select
 }
-use_alias = !{String ~ As ~ SYMBOL|SYMBOL ~ (ModuleSplit ~ SYMBOL)* ~As~SYMBOL}
+use_alias = !{String ~ "as" ~ SYMBOL|SYMBOL ~ (ModuleSplit ~ SYMBOL)* ~"as"~SYMBOL}
 use_module_select = !{SYMBOL ~ (ModuleSplit ~ SYMBOL)* ~(ModuleSplit ~ (module_block|Star))?}
-use_module_string = !{String ~ (ModuleSplit ~ (module_block|Star))?}
 module_block = {"{"~module_tuple~ ( comma_or_semi? ~ module_tuple)* ~comma_or_semi?~"}"}
 module_tuple = {use_alias|use_module_select}
 ModuleSplit= _{Dot|Proportion}
-//!#C678DD: Import|As
-Import  = @{"import"}
-As   = @{"as"}
 /*====================================================================================================================*/
 controlFlow = _{re_control|if_statement|for_statement}
 block = !{"{" ~ statement+ ~ "}"}
 /*====================================================================================================================*/
-if_statement = {if_nested_else|if_nested|if_single_else|if_single}
-if_single = _{If ~ condition ~ block}
-if_nested = _{If ~ condition ~ block ~ else_if_block+}
-if_single_else = _{If ~ condition ~ block ~ if_else_block}
-if_nested_else = _{If ~ condition ~ block ~ else_if_block+ ~ if_else_block}
-else_if_block = _{Else ~ If ~ condition ~ block}
-if_else_block = _{Else ~ block}
-//!#C678DD: If|Else
-If = @{"if"}
-Else = @{"else"}
+if_statement = {"if" ~ condition ~ block ~ "else" ~ block}
+if_single = _{"if" ~ condition ~ block}
+if_nested = _{"if" ~ condition ~ block ~ else_if_block+}
+if_single_else = _{"if" ~ condition ~ block ~ if_else_block}
+if_nested_else = _{"if" ~ condition ~ block ~ else_if_block+ ~ if_else_block}
+else_if_block = _{("else" ~ "if"|"ef") ~ condition ~ block}
+if_else_block = _{"else" ~ block}
+condition  = _{"(" ~ expr ~ ")"|expr}
 /*====================================================================================================================*/
 for_statement = {"for" ~ SYMBOL ~ "in"~expr~block}
 for_in_loop = {SYMBOL~"in"~expr~block}
@@ -67,27 +59,21 @@ Pass = @{"pass"}
 Type = @{"type"}
 /*====================================================================================================================*/
 classStatement = {"class" ~ assign_pair ~ short_block?}
-traitStatement = {"trait" ~ assign_pair ~ short_block?}
 
 short_block = {"{" ~ short_statement* ~ "}"}
 short_statement = {
     emptyStatement
-  | Def? ~ define_terms ~ eos?
-  | Let? ~ assign_terms ~ eos?
+  | "def"? ~ define_terms ~ eos?
+  | "let"? ~ assign_terms ~ eos?
   | short_annotation ~ eos?
 }
 short_annotation = {annotation_call+~short_statement}
 /*====================================================================================================================*/
 extendStatement = {
-    Extend ~ Symbol ~ with_trait? ~ short_block
+    "extend" ~ Symbol ~ ("with"|Colon)? ~ short_block
 }
-with_trait = {With ~ Symbol}
-
-//!#C678DD: Extend|With
-Extend = @{"extend"}
-With = @{"with"}
 /*====================================================================================================================*/
-assignStatement = {Let ~ assign_terms}
+assignStatement = {"let" ~ assign_terms}
 assign_terms = _{
     "(" ~ assign_name ~ ")" ~ block_or_stmt?
   | assign_name ~ block_or_stmt?
@@ -95,10 +81,8 @@ assign_terms = _{
 assign_name = _{assign_pair ~ (Comma ~ assign_pair)* ~ Comma?}
 assign_pair = {Modifier* ~ Symbol}
 
-///#C678DD
-Let = @{"let"}
 /*====================================================================================================================*/
-defineStatement = {Def ~ define_terms}
+defineStatement = {"def" ~ define_terms}
 define_terms = _{
     assign_pair ~ define_parameter ~ block_or_stmt?
 }
@@ -107,9 +91,6 @@ define_parameter = {
   | "(" ~ ")"
 }
 define_pair = {SYMBOL ~ (Set ~ expr)?}
-//!#C678DD: Def|Where
-Def = @{"def"}
-Where = @{"where"}
 /*====================================================================================================================*/
 //!Orange:annotation_call
 annotation = {annotation_call+~statement}
@@ -133,24 +114,28 @@ node = {"(" ~ expr ~ ")"|tuple|bracket_call|data}
 tuple = {"(" ~ expr ~ (Comma ~ expr)* ~ Comma? ~ ")"}
 bracket_call = ${data ~ ((!NEWLINE ~ WHITESPACE)* ~ (slice|apply))+}
 bracket_apply = {Symbol ~ dict}
-condition  = _{"(" ~ expr ~ ")"|expr}
 dot_call = {term~ Dot ~ (Integer|Symbol) }
 /*====================================================================================================================*/
 template = {EmptyTemplate|Fragment|OpenClose|SelfClose}
-EmptyTemplate = {"</>"}
+EmptyTemplate = {"<|>"}
 Fragment = {"<>" ~ text_mode ~ "</>" }
 OpenClose = {"<" ~ PUSH(Symbol) ~ ">" ~ text_mode+ ~ "</" ~ POP ~ ">" }
 SelfClose = {"<" ~ PUSH(Symbol) ~ text_mode+ ~ POP ~ "/>" }
 text_mode = ${
-    "{" ~ statement* ~ "}"|template+|text_char+
+    "{" ~ statement* ~ "}"|template+|(HTMLEscape|text_char)+
 }
 text_char = @{
-    (!("{"|"}"|"<"|">"|"///") ~ ANY)|
+    (!("{"|"}"|"<"|">") ~ ANY)|
     "{{"| "}}" |
     "<<" | ">>"
 }
+HTMLEscape = @{
+    "&" ~ ASCII_ALPHA_LOWER ~ ";" |
+    "&#" ~ Integer ~";"
+}
+
 /*====================================================================================================================*/
-data = ${template|dict|list|Null|Unit|Boolean|Byte|Number|String|Symbol}
+data = ${template|dict|list|SpecialValue|Byte|Number|String|Symbol}
 dict = {"{" ~ key_value? ~ (Comma ~ key_value)* ~ Comma? ~ "}"}
 list = {"[" ~ expr? ~ (Comma ~ expr)* ~ Comma? ~ "]"}
 slice = !{"[" ~ index ~ (Comma ~ index)* ~ Comma? ~ "]"}
@@ -160,14 +145,8 @@ key_valid =!{Integer | SYMBOL | String}
 index_range = !{expr? ~ Colon ~ expr?}
 index_step = !{expr? ~ Colon ~ expr? ~ Colon ~ expr?}
 /*====================================================================================================================*/
-//!#D19A66: Null|Unit
-Null = @{"null"}
-Unit = !{"("~")"}
-/*====================================================================================================================*/
 ///#D19A66
-Boolean = !{True|False}
-True    = @{"true"}
-False   = @{"false"}
+SpecialValue = @{"true"|"false"|"null"}
 /*====================================================================================================================*/
 ///#D19A66
 Byte     = ${Byte_BIN|Byte_OCT|Byte_HEX}
@@ -196,9 +175,9 @@ StringEnd         = @{POP ~ Apostrophe{1}}
 // NEWLINE = @{"\r"~"\n"|"\r"|"\n"}
 WHITESPACE = {NEWLINE|WHITE_SPACE}
 //!#7F848E: MultiLineComment
-COMMENT = {MultiLineComment|LineCommentSimple|LineCommentTodo|LineCommentFixme|LineCommentWarning}
+COMMENT = {MultiLineComment|LineCommentTodo|LineCommentFixme|LineCommentWarning|LineCommentSimple}
 ///Gray
-LineCommentSimple = ${ "///" ~ (!NEWLINE ~ ANY)*}
+LineCommentSimple = ${ "//" ~ (!NEWLINE ~ ANY)*}
 ///Green
 LineCommentTodo = ${ "//?" ~ (!NEWLINE ~ ANY)*}
 ///Red
@@ -302,14 +281,6 @@ LogicAnd =@{"&&"|"∨"} //U+2228
 LogicNot =@{"¬"} //U+00AC
 
 Ellipsis =@{"..."|"…"} // U+2026
-
-
-
-
-LogicXor =@{"⊕"} //U+2295
-MapAll =@{"//@"}
-
-Output =@{"%%"}
 
 Concat =@{"~~"}
 Destruct =@{"~="}
