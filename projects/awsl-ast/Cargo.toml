@@ -9,7 +9,7 @@ license = "MPL-2.0"
 edition = "2018"
 
 [dependencies]
-text-utils = "0.3"
+awsl-error = {version="1.0.0", path = "../awsl-error"}
 url = "2.1"
 
 [dev-dependencies]

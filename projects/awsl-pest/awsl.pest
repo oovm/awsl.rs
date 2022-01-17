@@ -20,9 +20,9 @@ block_or_stmt = _{block|Set ~ statement}
 /*====================================================================================================================*/
 //FIXME: 修复 nested using
 importStatement = {
-    Import ~ Dot* ~ use_alias
-  | Import ~ Dot* ~ use_module_select
-  | Import ~ use_module_string
+    USING ~ Dot* ~ use_alias
+  | USING ~ Dot* ~ use_module_select
+  | USING ~ use_module_string
 }
 use_alias = !{String ~ As ~ SYMBOL|SYMBOL ~ (ModuleSplit ~ SYMBOL)* ~As~SYMBOL}
 use_module_select = !{SYMBOL ~ (ModuleSplit ~ SYMBOL)* ~(ModuleSplit ~ (module_block|Star))?}
@@ -31,40 +31,41 @@ module_block = {"{"~module_tuple~ ( comma_or_semi? ~ module_tuple)* ~comma_or_se
 module_tuple = {use_alias|use_module_select}
 ModuleSplit= _{Dot|Proportion}
 //!#C678DD: Import|As
-Import  = @{"import"}
+USING  = @{"using"}
 As   = @{"as"}
 /*====================================================================================================================*/
 controlFlow = _{re_control|if_statement|for_statement}
 block = !{"{" ~ statement+ ~ "}"}
 /*====================================================================================================================*/
 if_statement = {if_nested_else|if_nested|if_single_else|if_single}
-if_single = _{If ~ condition ~ block}
-if_nested = _{If ~ condition ~ block ~ else_if_block+}
-if_single_else = _{If ~ condition ~ block ~ if_else_block}
-if_nested_else = _{If ~ condition ~ block ~ else_if_block+ ~ if_else_block}
-else_if_block = _{Else ~ If ~ condition ~ block}
-if_else_block = _{Else ~ block}
+if_single = _{IF ~ condition ~ block}
+if_nested = _{IF ~ condition ~ block ~ else_if_block+}
+if_single_else = _{IF ~ condition ~ block ~ if_else_block}
+if_nested_else = _{IF ~ condition ~ block ~ else_if_block+ ~ if_else_block}
+else_if_block = _{ELSE_IF ~ condition ~ block}
+if_else_block = _{ELSE ~ block}
 //!#C678DD: If|Else
-If = @{"if"}
-Else = @{"else"}
+IF = @{"if"}
+ELSE_IF = @{"ef" | ELSE ~ IF}
+ELSE = @{"else"}
 /*====================================================================================================================*/
-for_statement = {For ~ for_in_loop}
-for_in_loop = {SYMBOL~In~expr~block}
+for_statement = {FOR ~ for_in_loop}
+for_in_loop = {SYMBOL~IN~expr~block}
 //!#C678DD: For|In
-For = @{"for"}
-In = @{"in"}
+FOR = @{"for"}
+IN = @{"in"}
 /*====================================================================================================================*/
 re_control = {
-    Return ~ expr
-  | Break
-  | Pass
+    RETURN ~ expr
+  | BREAK
+  | CONTINUE
 }
 
 //!#C678DD: Return|Yield|Break|Pass
-Return = @{"return"}
-Yield = @{"yield"}
-Break = @{"break"}
-Pass = @{"pass"}
+RETURN = @{"return"}
+YIELD = @{"yield"}
+BREAK = @{"break"}
+CONTINUE = @{"continue"}
 /*====================================================================================================================*/
 ///#C678DD
 Type = @{"type"}
@@ -241,7 +242,7 @@ O = _{"o"|"O"}
 B = _{"b"|"B"}
 /*====================================================================================================================*/
 //!Orange: Modifier
-Keywords = !{If|For}
+Keywords = !{IF|FOR}
 Modifier = !{(!(SYMBOL~(Set|Comma|Colon|Semicolon|"{"|"}"|"("|")"|"<"|">")) ~SYMBOL)}
 //!#56B6C2: Prefix|Infix|Postfix
 Prefix = @{
