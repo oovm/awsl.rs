@@ -1,0 +1,9 @@
+// single line comment
+
+
+//+
+comment level 1
+    //+
+    comment level 2
+    //-
+//-
