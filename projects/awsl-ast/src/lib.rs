@@ -2,7 +2,7 @@
 
 pub use ast::{ASTKind, ASTNode};
 pub use awsl_error::{Failure, Result, Success};
-pub use parser::AwslParser;
+pub use parser::ParserConfig;
 
 mod parser;
 mod ast;

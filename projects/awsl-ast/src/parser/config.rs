@@ -1,7 +1,9 @@
 use yggdrasil_shared::{Position, PositionRange};
 
-use awsl_pest::pest::iterators::Pair;
-use awsl_pest::Rule;
+use awsl_pest::{
+    pest::iterators::{Pair, Pairs},
+    Rule,
+};
 
 pub struct ParserConfig {
     pub tab_size: usize,
@@ -14,6 +16,10 @@ impl Default for ParserConfig {
 }
 
 impl ParserConfig {
+    pub fn get_position_root(&self, s: &Pairs<Rule>) -> PositionRange {
+        let _ = s;
+        PositionRange { start: Position { line: 0, column: 0 }, end: Position { line: 0, column: 0 } }
+    }
     pub fn get_position(&self, s: &Pair<Rule>) -> PositionRange {
         let start = s.as_span().start_pos().line_col();
         let end = s.as_span().end_pos().line_col();
