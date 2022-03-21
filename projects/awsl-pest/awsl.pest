@@ -37,18 +37,21 @@ block = !{"{" ~ statement+ ~ "}"}
 if_statement = {IF ~ condition ~ block ~ ELSE ~ block}
 if_single = _{IF ~ condition ~ block}
 if_nested = _{IF ~ condition ~ block ~ else_if_block+}
-if_single_else = _{IF ~ condition ~ block ~ if_else_block}
-if_nested_else = _{IF ~ condition ~ block ~ else_if_block+ ~ if_else_block}
+if_single_else = _{IF ~ condition ~ block ~ else_block}
+if_nested_else = _{IF ~ condition ~ block ~ else_if_block+ ~ else_block}
 else_if_block = _{ELSE_IF ~ condition ~ block}
-if_else_block = _{ELSE ~ block}
+else_block = _{ELSE ~ block}
 condition  = _{"(" ~ expr ~ ")"|expr}
 //!#C678DD: IF|ELSE|ELSE_IF
 IF      = @{"if"}
 ELSE    = @{"else"}
 ELSE_IF = @{"ef"| ELSE ~ IF}
 /*====================================================================================================================*/
-for_statement = {"for" ~ SYMBOL ~ "in"~expr~block}
-for_in_loop = {SYMBOL~"in"~expr~block}
+for_statement = {FOR ~ SYMBOL ~ IN ~ expr ~ block}
+for_in_loop   = {SYMBOL ~ IN ~ expr ~ block}
+//!#C678DD: FOR|IN
+FOR = @{"for"}
+IN  = @{"in"}
 /*====================================================================================================================*/
 re_control = {
     RETURN ~ expr

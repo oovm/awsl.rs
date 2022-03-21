@@ -67,8 +67,8 @@ impl ParserConfig {
             match pair.as_rule() {
                 Rule::WHITESPACE => continue,
                 // Rule::pattern | Rule::pattern_bare => pattern = self.parse_pattern(pair),
-                Rule::expr => terms = self.parse_expr(pair),
-                Rule::block => block = self.parse_block(pair),
+                // Rule::expr => terms = self.parse_expr(pair),
+                // Rule::block => block = self.parse_block(pair),
                 // Rule::for_if => guard = Some(self.parse_expr(pair.into_inner().nth(0).unwrap())),
                 // Rule::for_else => for_else = Some(self.parse_block(pair.into_inner().nth(0).unwrap())),
                 // _ => debug_cases!(pair),

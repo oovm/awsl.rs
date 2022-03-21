@@ -12,6 +12,7 @@ edition = "2018"
 text-utils = "0.3"
 url = "2.1"
 yggdrasil-shared = "0.2.1"
+pest_consume = "1.1.1"
 
 [dependencies.awsl-pest]
 version = "0.1.*"
