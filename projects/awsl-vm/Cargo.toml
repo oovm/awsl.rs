@@ -1,5 +1,5 @@
 [package]
-name = "awsl-parser"
+name = "awsl-hir"
 version = "0.1.0"
 authors = ["Aster <192607617@qq.com>"]
 description = "AWSL Window Structure Language"
@@ -11,6 +11,12 @@ edition = "2018"
 [dependencies]
 text-utils = "0.3"
 url = "2.1"
+yggdrasil-shared = "0.2.1"
+
+[dependencies.awsl-error]
+version = "0.1.0"
+features = []
+path = "../awsl-error"
 
 [dev-dependencies]
 

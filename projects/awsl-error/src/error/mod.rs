@@ -5,8 +5,11 @@ use std::{
     ops::FromResidual,
     panic::Location,
 };
+use std::ops::Range;
 
-pub type Result<T> = IResult<T, ValkyrieError>;
+use yggdrasil_shared::{OffsetRange, Position, PositionRange};
+
+pub type Result<T> = IResult<T, AwslError>;
 
 pub enum IResult<T, E> {
     Success(T),
@@ -14,35 +17,40 @@ pub enum IResult<T, E> {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct ValkyrieError {
-    pub kind: ErrorKind,
-    pub line: u32,
-    pub column: u32,
+pub struct AwslError {
+    pub kind: AwslErrorKind,
+    pub range: PositionRange,
     pub file: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub enum ErrorKind {
+pub enum AwslErrorKind {
     Internal(String),
 }
 
-impl Error for ValkyrieError {}
+impl Error for AwslError {}
 
-impl Display for ValkyrieError {
+impl Display for AwslError {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         writeln!(f, "{:?}", self.kind)?;
-        writeln!(f, "    at {}, {} in {}", self.line, self.column, self.file)
+        writeln!(f, "    at {}, {} in {}", self.range.start.line, self.range.start.column, self.file)
     }
 }
 
 impl<T> FromResidual<Option<Infallible>> for Result<T> {
     fn from_residual(_: Option<Infallible>) -> Self {
         let location = Location::caller();
-        let line = location.line();
-        let column = location.column();
+        let start = Position {
+            line: location.line(),
+            column: location.column(),
+        };
+        let end = Position {
+            line: location.line(),
+            column: location.column(),
+        };
         let file = location.file().to_string();
-        let kind = ErrorKind::Internal(format!("Call . on None"));
-        let error = ValkyrieError { kind, line, column, file };
+        let kind = AwslErrorKind::Internal(format!("Can not call methods on None"));
+        let error = AwslError { kind, range: Range { start, end }, file };
         IResult::Failure(error)
     }
 }

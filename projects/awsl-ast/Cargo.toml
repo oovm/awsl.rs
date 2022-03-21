@@ -1,5 +1,5 @@
 [package]
-name = "awsl-ast"
+name = "awsl-parser"
 version = "0.1.0"
 authors = ["Aster <192607617@qq.com>"]
 description = "AWSL Window Structure Language"
@@ -11,6 +11,15 @@ edition = "2018"
 [dependencies]
 text-utils = "0.3"
 url = "2.1"
+yggdrasil-shared = "0.2.1"
+
+[dependencies.awsl-pest]
+version = "0.1.*"
+path = "../awsl-pest"
+
+[dependencies.awsl-error]
+version = "0.1.*"
+path = "../awsl-error"
 
 [dev-dependencies]
 
