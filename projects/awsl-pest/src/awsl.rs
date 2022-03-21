@@ -15,6 +15,8 @@ pub enum Rule {
     module_block,
     module_tuple,
     ModuleSplit,
+    IMPORT,
+    AS,
     controlFlow,
     block,
     if_statement,
@@ -25,13 +27,16 @@ pub enum Rule {
     else_if_block,
     if_else_block,
     condition,
+    IF,
+    ELSE,
+    ELSE_IF,
     for_statement,
     for_in_loop,
     re_control,
-    Return,
-    Yield,
-    Break,
-    Pass,
+    RETURN,
+    YIELD,
+    BREAK,
+    CONTINUE,
     Type,
     classStatement,
     short_block,
@@ -200,12 +205,12 @@ impl ::pest::Parser<Rule> for AwslParser {
                 #[inline]
                 #[allow(non_snake_case, unused_variables)]
                 pub fn importStatement(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
-                    state.rule(Rule::importStatement, |state| state.sequence(|state| state.match_string("import").and_then(|state| super::hidden::skip(state)).and_then(|state| state.sequence(|state| state.optional(|state| self::Dot(state).and_then(|state| state.repeat(|state| state.sequence(|state| super::hidden::skip(state).and_then(|state| self::Dot(state)))))))).and_then(|state| super::hidden::skip(state)).and_then(|state| state.restore_on_err(|state| self::use_alias(state)).or_else(|state| state.restore_on_err(|state| self::use_module_select(state))))))
+                    state.rule(Rule::importStatement, |state| state.sequence(|state| self::IMPORT(state).and_then(|state| super::hidden::skip(state)).and_then(|state| state.sequence(|state| state.optional(|state| self::Dot(state).and_then(|state| state.repeat(|state| state.sequence(|state| super::hidden::skip(state).and_then(|state| self::Dot(state)))))))).and_then(|state| super::hidden::skip(state)).and_then(|state| state.restore_on_err(|state| self::use_alias(state)).or_else(|state| state.restore_on_err(|state| self::use_module_select(state))))))
                 }
                 #[inline]
                 #[allow(non_snake_case, unused_variables)]
                 pub fn use_alias(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
-                    state.atomic(::pest::Atomicity::NonAtomic, |state| state.rule(Rule::use_alias, |state| state.restore_on_err(|state| state.sequence(|state| self::String(state).and_then(|state| super::hidden::skip(state)).and_then(|state| state.match_string("as")).and_then(|state| super::hidden::skip(state)).and_then(|state| self::SYMBOL(state)))).or_else(|state| state.sequence(|state| self::SYMBOL(state).and_then(|state| super::hidden::skip(state)).and_then(|state| state.sequence(|state| state.optional(|state| state.sequence(|state| self::ModuleSplit(state).and_then(|state| super::hidden::skip(state)).and_then(|state| self::SYMBOL(state))).and_then(|state| state.repeat(|state| state.sequence(|state| super::hidden::skip(state).and_then(|state| state.sequence(|state| self::ModuleSplit(state).and_then(|state| super::hidden::skip(state)).and_then(|state| self::SYMBOL(state)))))))))).and_then(|state| super::hidden::skip(state)).and_then(|state| state.match_string("as")).and_then(|state| super::hidden::skip(state)).and_then(|state| self::SYMBOL(state))))))
+                    state.atomic(::pest::Atomicity::NonAtomic, |state| state.rule(Rule::use_alias, |state| state.restore_on_err(|state| state.sequence(|state| self::String(state).and_then(|state| super::hidden::skip(state)).and_then(|state| self::AS(state)).and_then(|state| super::hidden::skip(state)).and_then(|state| self::SYMBOL(state)))).or_else(|state| state.sequence(|state| self::SYMBOL(state).and_then(|state| super::hidden::skip(state)).and_then(|state| state.sequence(|state| state.optional(|state| state.sequence(|state| self::ModuleSplit(state).and_then(|state| super::hidden::skip(state)).and_then(|state| self::SYMBOL(state))).and_then(|state| state.repeat(|state| state.sequence(|state| super::hidden::skip(state).and_then(|state| state.sequence(|state| self::ModuleSplit(state).and_then(|state| super::hidden::skip(state)).and_then(|state| self::SYMBOL(state)))))))))).and_then(|state| super::hidden::skip(state)).and_then(|state| state.match_string("as")).and_then(|state| super::hidden::skip(state)).and_then(|state| self::SYMBOL(state))))))
                 }
                 #[inline]
                 #[allow(non_snake_case, unused_variables)]
@@ -229,6 +234,16 @@ impl ::pest::Parser<Rule> for AwslParser {
                 }
                 #[inline]
                 #[allow(non_snake_case, unused_variables)]
+                pub fn IMPORT(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
+                    state.rule(Rule::IMPORT, |state| state.atomic(::pest::Atomicity::Atomic, |state| state.match_string("import")))
+                }
+                #[inline]
+                #[allow(non_snake_case, unused_variables)]
+                pub fn AS(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
+                    state.rule(Rule::AS, |state| state.atomic(::pest::Atomicity::Atomic, |state| state.match_string("as")))
+                }
+                #[inline]
+                #[allow(non_snake_case, unused_variables)]
                 pub fn controlFlow(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
                     state.restore_on_err(|state| self::re_control(state)).or_else(|state| state.restore_on_err(|state| self::if_statement(state))).or_else(|state| state.restore_on_err(|state| self::for_statement(state)))
                 }
@@ -240,42 +255,57 @@ impl ::pest::Parser<Rule> for AwslParser {
                 #[inline]
                 #[allow(non_snake_case, unused_variables)]
                 pub fn if_statement(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
-                    state.rule(Rule::if_statement, |state| state.sequence(|state| state.match_string("if").and_then(|state| super::hidden::skip(state)).and_then(|state| self::condition(state)).and_then(|state| super::hidden::skip(state)).and_then(|state| self::block(state)).and_then(|state| super::hidden::skip(state)).and_then(|state| state.match_string("else")).and_then(|state| super::hidden::skip(state)).and_then(|state| self::block(state))))
+                    state.rule(Rule::if_statement, |state| state.sequence(|state| self::IF(state).and_then(|state| super::hidden::skip(state)).and_then(|state| self::condition(state)).and_then(|state| super::hidden::skip(state)).and_then(|state| self::block(state)).and_then(|state| super::hidden::skip(state)).and_then(|state| self::ELSE(state)).and_then(|state| super::hidden::skip(state)).and_then(|state| self::block(state))))
                 }
                 #[inline]
                 #[allow(non_snake_case, unused_variables)]
                 pub fn if_single(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
-                    state.sequence(|state| state.match_string("if").and_then(|state| super::hidden::skip(state)).and_then(|state| self::condition(state)).and_then(|state| super::hidden::skip(state)).and_then(|state| self::block(state)))
+                    state.sequence(|state| self::IF(state).and_then(|state| super::hidden::skip(state)).and_then(|state| self::condition(state)).and_then(|state| super::hidden::skip(state)).and_then(|state| self::block(state)))
                 }
                 #[inline]
                 #[allow(non_snake_case, unused_variables)]
                 pub fn if_nested(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
-                    state.sequence(|state| state.match_string("if").and_then(|state| super::hidden::skip(state)).and_then(|state| self::condition(state)).and_then(|state| super::hidden::skip(state)).and_then(|state| self::block(state)).and_then(|state| super::hidden::skip(state)).and_then(|state| self::else_if_block(state)).and_then(|state| super::hidden::skip(state)).and_then(|state| state.sequence(|state| state.optional(|state| state.restore_on_err(|state| self::else_if_block(state)).and_then(|state| state.repeat(|state| state.sequence(|state| super::hidden::skip(state).and_then(|state| state.restore_on_err(|state| self::else_if_block(state))))))))))
+                    state.sequence(|state| self::IF(state).and_then(|state| super::hidden::skip(state)).and_then(|state| self::condition(state)).and_then(|state| super::hidden::skip(state)).and_then(|state| self::block(state)).and_then(|state| super::hidden::skip(state)).and_then(|state| self::else_if_block(state)).and_then(|state| super::hidden::skip(state)).and_then(|state| state.sequence(|state| state.optional(|state| state.restore_on_err(|state| self::else_if_block(state)).and_then(|state| state.repeat(|state| state.sequence(|state| super::hidden::skip(state).and_then(|state| state.restore_on_err(|state| self::else_if_block(state))))))))))
                 }
                 #[inline]
                 #[allow(non_snake_case, unused_variables)]
                 pub fn if_single_else(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
-                    state.sequence(|state| state.match_string("if").and_then(|state| super::hidden::skip(state)).and_then(|state| self::condition(state)).and_then(|state| super::hidden::skip(state)).and_then(|state| self::block(state)).and_then(|state| super::hidden::skip(state)).and_then(|state| self::if_else_block(state)))
+                    state.sequence(|state| self::IF(state).and_then(|state| super::hidden::skip(state)).and_then(|state| self::condition(state)).and_then(|state| super::hidden::skip(state)).and_then(|state| self::block(state)).and_then(|state| super::hidden::skip(state)).and_then(|state| self::if_else_block(state)))
                 }
                 #[inline]
                 #[allow(non_snake_case, unused_variables)]
                 pub fn if_nested_else(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
-                    state.sequence(|state| state.match_string("if").and_then(|state| super::hidden::skip(state)).and_then(|state| self::condition(state)).and_then(|state| super::hidden::skip(state)).and_then(|state| self::block(state)).and_then(|state| super::hidden::skip(state)).and_then(|state| state.sequence(|state| self::else_if_block(state).and_then(|state| super::hidden::skip(state)).and_then(|state| state.sequence(|state| state.optional(|state| state.restore_on_err(|state| self::else_if_block(state)).and_then(|state| state.repeat(|state| state.sequence(|state| super::hidden::skip(state).and_then(|state| state.restore_on_err(|state| self::else_if_block(state))))))))))).and_then(|state| super::hidden::skip(state)).and_then(|state| self::if_else_block(state)))
+                    state.sequence(|state| self::IF(state).and_then(|state| super::hidden::skip(state)).and_then(|state| self::condition(state)).and_then(|state| super::hidden::skip(state)).and_then(|state| self::block(state)).and_then(|state| super::hidden::skip(state)).and_then(|state| state.sequence(|state| self::else_if_block(state).and_then(|state| super::hidden::skip(state)).and_then(|state| state.sequence(|state| state.optional(|state| state.restore_on_err(|state| self::else_if_block(state)).and_then(|state| state.repeat(|state| state.sequence(|state| super::hidden::skip(state).and_then(|state| state.restore_on_err(|state| self::else_if_block(state))))))))))).and_then(|state| super::hidden::skip(state)).and_then(|state| self::if_else_block(state)))
                 }
                 #[inline]
                 #[allow(non_snake_case, unused_variables)]
                 pub fn else_if_block(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
-                    state.sequence(|state| state.sequence(|state| state.match_string("else").and_then(|state| super::hidden::skip(state)).and_then(|state| state.match_string("if"))).or_else(|state| state.match_string("ef")).and_then(|state| super::hidden::skip(state)).and_then(|state| self::condition(state)).and_then(|state| super::hidden::skip(state)).and_then(|state| self::block(state)))
+                    state.sequence(|state| self::ELSE_IF(state).and_then(|state| super::hidden::skip(state)).and_then(|state| self::condition(state)).and_then(|state| super::hidden::skip(state)).and_then(|state| self::block(state)))
                 }
                 #[inline]
                 #[allow(non_snake_case, unused_variables)]
                 pub fn if_else_block(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
-                    state.sequence(|state| state.match_string("else").and_then(|state| super::hidden::skip(state)).and_then(|state| self::block(state)))
+                    state.sequence(|state| self::ELSE(state).and_then(|state| super::hidden::skip(state)).and_then(|state| self::block(state)))
                 }
                 #[inline]
                 #[allow(non_snake_case, unused_variables)]
                 pub fn condition(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
                     state.restore_on_err(|state| state.sequence(|state| state.match_string("(").and_then(|state| super::hidden::skip(state)).and_then(|state| self::expr(state)).and_then(|state| super::hidden::skip(state)).and_then(|state| state.match_string(")")))).or_else(|state| state.restore_on_err(|state| self::expr(state)))
+                }
+                #[inline]
+                #[allow(non_snake_case, unused_variables)]
+                pub fn IF(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
+                    state.rule(Rule::IF, |state| state.atomic(::pest::Atomicity::Atomic, |state| state.match_string("if")))
+                }
+                #[inline]
+                #[allow(non_snake_case, unused_variables)]
+                pub fn ELSE(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
+                    state.rule(Rule::ELSE, |state| state.atomic(::pest::Atomicity::Atomic, |state| state.match_string("else")))
+                }
+                #[inline]
+                #[allow(non_snake_case, unused_variables)]
+                pub fn ELSE_IF(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
+                    state.rule(Rule::ELSE_IF, |state| state.atomic(::pest::Atomicity::Atomic, |state| state.match_string("ef").or_else(|state| state.sequence(|state| self::ELSE(state).and_then(|state| self::IF(state))))))
                 }
                 #[inline]
                 #[allow(non_snake_case, unused_variables)]
@@ -290,27 +320,27 @@ impl ::pest::Parser<Rule> for AwslParser {
                 #[inline]
                 #[allow(non_snake_case, unused_variables)]
                 pub fn re_control(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
-                    state.rule(Rule::re_control, |state| state.restore_on_err(|state| state.sequence(|state| self::Return(state).and_then(|state| super::hidden::skip(state)).and_then(|state| self::expr(state)))).or_else(|state| self::Break(state)).or_else(|state| self::Pass(state)))
+                    state.rule(Rule::re_control, |state| state.restore_on_err(|state| state.sequence(|state| self::RETURN(state).and_then(|state| super::hidden::skip(state)).and_then(|state| self::expr(state)))).or_else(|state| self::BREAK(state)).or_else(|state| self::CONTINUE(state)))
                 }
                 #[inline]
                 #[allow(non_snake_case, unused_variables)]
-                pub fn Return(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
-                    state.rule(Rule::Return, |state| state.atomic(::pest::Atomicity::Atomic, |state| state.match_string("return")))
+                pub fn RETURN(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
+                    state.rule(Rule::RETURN, |state| state.atomic(::pest::Atomicity::Atomic, |state| state.match_string("return")))
                 }
                 #[inline]
                 #[allow(non_snake_case, unused_variables)]
-                pub fn Yield(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
-                    state.rule(Rule::Yield, |state| state.atomic(::pest::Atomicity::Atomic, |state| state.match_string("yield")))
+                pub fn YIELD(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
+                    state.rule(Rule::YIELD, |state| state.atomic(::pest::Atomicity::Atomic, |state| state.match_string("yield")))
                 }
                 #[inline]
                 #[allow(non_snake_case, unused_variables)]
-                pub fn Break(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
-                    state.rule(Rule::Break, |state| state.atomic(::pest::Atomicity::Atomic, |state| state.match_string("break")))
+                pub fn BREAK(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
+                    state.rule(Rule::BREAK, |state| state.atomic(::pest::Atomicity::Atomic, |state| state.match_string("break")))
                 }
                 #[inline]
                 #[allow(non_snake_case, unused_variables)]
-                pub fn Pass(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
-                    state.rule(Rule::Pass, |state| state.atomic(::pest::Atomicity::Atomic, |state| state.match_string("pass")))
+                pub fn CONTINUE(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
+                    state.rule(Rule::CONTINUE, |state| state.atomic(::pest::Atomicity::Atomic, |state| state.match_string("pass")))
                 }
                 #[inline]
                 #[allow(non_snake_case, unused_variables)]
@@ -460,7 +490,7 @@ impl ::pest::Parser<Rule> for AwslParser {
                 #[inline]
                 #[allow(non_snake_case, unused_variables)]
                 pub fn EmptyTemplate(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
-                    state.rule(Rule::EmptyTemplate, |state| state.match_string("</>"))
+                    state.rule(Rule::EmptyTemplate, |state| state.match_string("<|>"))
                 }
                 #[inline]
                 #[allow(non_snake_case, unused_variables)]
@@ -1003,6 +1033,8 @@ impl ::pest::Parser<Rule> for AwslParser {
             Rule::module_block => rules::module_block(state),
             Rule::module_tuple => rules::module_tuple(state),
             Rule::ModuleSplit => rules::ModuleSplit(state),
+            Rule::IMPORT => rules::IMPORT(state),
+            Rule::AS => rules::AS(state),
             Rule::controlFlow => rules::controlFlow(state),
             Rule::block => rules::block(state),
             Rule::if_statement => rules::if_statement(state),
@@ -1013,13 +1045,16 @@ impl ::pest::Parser<Rule> for AwslParser {
             Rule::else_if_block => rules::else_if_block(state),
             Rule::if_else_block => rules::if_else_block(state),
             Rule::condition => rules::condition(state),
+            Rule::IF => rules::IF(state),
+            Rule::ELSE => rules::ELSE(state),
+            Rule::ELSE_IF => rules::ELSE_IF(state),
             Rule::for_statement => rules::for_statement(state),
             Rule::for_in_loop => rules::for_in_loop(state),
             Rule::re_control => rules::re_control(state),
-            Rule::Return => rules::Return(state),
-            Rule::Yield => rules::Yield(state),
-            Rule::Break => rules::Break(state),
-            Rule::Pass => rules::Pass(state),
+            Rule::RETURN => rules::RETURN(state),
+            Rule::YIELD => rules::YIELD(state),
+            Rule::BREAK => rules::BREAK(state),
+            Rule::CONTINUE => rules::CONTINUE(state),
             Rule::Type => rules::Type(state),
             Rule::classStatement => rules::classStatement(state),
             Rule::short_block => rules::short_block(state),

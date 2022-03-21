@@ -1,9 +1,4 @@
-#[macro_use]
-extern crate quote;
-extern crate pest_generator;
-extern crate proc_macro;
-
-mod pest;
+mod gen;
 
 #[test]
 fn ready() {
@@ -13,5 +8,5 @@ fn ready() {
 #[test]
 #[ignore]
 fn gen_parser() {
-    pest::gen_note_down();
+    gen::gen_note_down();
 }

@@ -2,16 +2,21 @@
 name = "awsl-pest"
 version = "0.1.0"
 authors = ["Aster <192607617@qq.com>"]
-description = "AWSL Window Structure Language"
+description = "AWSL Web Structure Language"
 repository = "https://github.com/GalAster/awsl-rs"
 readme = "Readme.md"
 license = "MPL-2.0"
-edition = "2018"
-
+edition = "2021"
 
 [dependencies]
-pest = "2.1"
+pest = "2.1.3"
 
 [dev-dependencies]
-pest_generator = "2.1"
-quote = "1.0"
+pest_generator = "2.1.3"
+quote = "1.0.16"
+
+[package.metadata.wee]
+u = "cargo upgrade"
+p = "cargo publish --allow-dirty"
+pest = "cargo test --test main gen_parser -- --ignored && wee fmt -t"
+fmt = "cargo fmt"

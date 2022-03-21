@@ -19,41 +19,47 @@ block_or_stmt = _{block|Set ~ statement}
 /*====================================================================================================================*/
 //FIXME: 修复 nested using
 importStatement = {
-    "import" ~ Dot* ~ use_alias
-  | "import" ~ Dot* ~ use_module_select
+    IMPORT ~ Dot* ~ use_alias
+  | IMPORT ~ Dot* ~ use_module_select
 }
-use_alias = !{String ~ "as" ~ SYMBOL|SYMBOL ~ (ModuleSplit ~ SYMBOL)* ~"as"~SYMBOL}
+use_alias = !{String ~ AS ~ SYMBOL|SYMBOL ~ (ModuleSplit ~ SYMBOL)* ~"as"~SYMBOL}
 use_module_select = !{SYMBOL ~ (ModuleSplit ~ SYMBOL)* ~(ModuleSplit ~ (module_block|Star))?}
 module_block = {"{"~module_tuple~ ( comma_or_semi? ~ module_tuple)* ~comma_or_semi?~"}"}
 module_tuple = {use_alias|use_module_select}
 ModuleSplit= _{Dot|Proportion}
+//!#C678DD: IMPORT|AS
+IMPORT = @{"import"}
+AS     = @{"as"}
 /*====================================================================================================================*/
 controlFlow = _{re_control|if_statement|for_statement}
 block = !{"{" ~ statement+ ~ "}"}
 /*====================================================================================================================*/
-if_statement = {"if" ~ condition ~ block ~ "else" ~ block}
-if_single = _{"if" ~ condition ~ block}
-if_nested = _{"if" ~ condition ~ block ~ else_if_block+}
-if_single_else = _{"if" ~ condition ~ block ~ if_else_block}
-if_nested_else = _{"if" ~ condition ~ block ~ else_if_block+ ~ if_else_block}
-else_if_block = _{("else" ~ "if"|"ef") ~ condition ~ block}
-if_else_block = _{"else" ~ block}
+if_statement = {IF ~ condition ~ block ~ ELSE ~ block}
+if_single = _{IF ~ condition ~ block}
+if_nested = _{IF ~ condition ~ block ~ else_if_block+}
+if_single_else = _{IF ~ condition ~ block ~ if_else_block}
+if_nested_else = _{IF ~ condition ~ block ~ else_if_block+ ~ if_else_block}
+else_if_block = _{ELSE_IF ~ condition ~ block}
+if_else_block = _{ELSE ~ block}
 condition  = _{"(" ~ expr ~ ")"|expr}
+//!#C678DD: IF|ELSE|ELSE_IF
+IF      = @{"if"}
+ELSE    = @{"else"}
+ELSE_IF = @{"ef"| ELSE ~ IF}
 /*====================================================================================================================*/
 for_statement = {"for" ~ SYMBOL ~ "in"~expr~block}
 for_in_loop = {SYMBOL~"in"~expr~block}
 /*====================================================================================================================*/
 re_control = {
-    Return ~ expr
-  | Break
-  | Pass
+    RETURN ~ expr
+  | BREAK
+  | CONTINUE
 }
-
 //!#C678DD: Return|Yield|Break|Pass
-Return = @{"return"}
-Yield = @{"yield"}
-Break = @{"break"}
-Pass = @{"pass"}
+RETURN = @{"return"}
+YIELD = @{"yield"}
+BREAK = @{"break"}
+CONTINUE = @{"pass"}
 /*====================================================================================================================*/
 ///#C678DD
 Type = @{"type"}
