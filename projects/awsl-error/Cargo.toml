@@ -1,6 +1,6 @@
 [package]
 name = "awsl-error"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["192608617@qq.com"]
 edition = "2018"
 description = "Awesome web simple language"
@@ -21,7 +21,6 @@ version = "1.8.0"
 features = ["std", "serde", "rayon"]
 
 
-[dev-dependencies]
-
-
-[build-dependencies]
+[package.metadata.wee]
+u = "cargo upgrade"
+p = "cargo publish --allow-dirty"

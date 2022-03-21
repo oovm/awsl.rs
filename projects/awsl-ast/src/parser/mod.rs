@@ -39,7 +39,7 @@ impl ParserConfig {
                 codes.push(self.parse_statement(pair)?);
             };
         }
-        Success(ASTNode::program(codes, range))
+        ASTNode::program(codes, range)
     }
     fn parse_statement(&self, pairs: Pair<Rule>) -> Result<ASTNode> {
         let range = self.get_position(&pairs);
@@ -49,12 +49,32 @@ impl ParserConfig {
                 Rule::WHITESPACE => continue,
                 // Rule::expression => self.parse_expression(pair),
                 // Rule::if_statement => self.parse_if_else(pair),
-                Rule::for_statement => self.parse_for_in(pair),
+                Rule::for_statement => self.parse_for_in(pair)?,
                 // Rule::assign_statement => self.parse_assign(pair),
                 _ => debug_cases!(pair),
             };
             codes.push(code);
         }
-        Success(ASTNode::statement(codes, range))
+        ASTNode::statement(codes, range)
+    }
+
+    fn parse_for_in(&self, pairs: Pair<Rule>) -> Result<ASTNode> {
+        let r = self.get_position(&pairs);
+        let mut guard = None;
+        let mut for_else = None;
+        let (mut pattern, mut terms, mut block) = Default::default();
+        for pair in pairs.into_inner() {
+            match pair.as_rule() {
+                Rule::WHITESPACE => continue,
+                // Rule::pattern | Rule::pattern_bare => pattern = self.parse_pattern(pair),
+                Rule::expr => terms = self.parse_expr(pair),
+                Rule::block => block = self.parse_block(pair),
+                // Rule::for_if => guard = Some(self.parse_expr(pair.into_inner().nth(0).unwrap())),
+                // Rule::for_else => for_else = Some(self.parse_block(pair.into_inner().nth(0).unwrap())),
+                // _ => debug_cases!(pair),
+                _ => unreachable!(),
+            };
+        }
+        ASTNode::for_in_loop(pattern, terms, block, guard, for_else, r)
     }
 }
