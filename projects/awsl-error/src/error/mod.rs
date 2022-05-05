@@ -19,7 +19,16 @@ pub enum IResult<T, E> {
 }
 
 impl<T, E> IResult<T, E> {
-
+    #[track_caller]
+    pub fn unwrap(self) -> T
+    where
+        E: Error,
+    {
+        match self {
+            IResult::Success(s) => s,
+            IResult::Failure(e) => panic!("{}", e),
+        }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]

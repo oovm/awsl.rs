@@ -116,18 +116,18 @@ apply_kv = {SYMBOL~ Colon ~ expr|expr}
 function_name = {SYMBOL}
 function_module = {(namespace ~ Dot)? ~ (SYMBOL ~ Dot)*}
 /*====================================================================================================================*/
-expression = {expr~eos?}
-expr = !{term ~ (Infix ~ term)*}
-term =  {Prefix* ~ node ~ Suffix*}
-node = {"(" ~ expr ~ ")"|tuple|bracket_call|data}
-tuple = {"(" ~ expr ~ (Comma ~ expr)* ~ Comma? ~ ")"}
-bracket_call = ${data ~ ((!NEWLINE ~ WHITESPACE)* ~ (slice|apply))+}
+expression    = {expr ~ eos?}
+expr          =!{term ~ (Infix ~ term)*}
+term          = {Prefix* ~ node ~ Suffix*}
+node          = {"(" ~ expr ~ ")"|tuple|bracket_call|data}
+tuple         = {"(" ~ expr ~ (Comma ~ expr)* ~ Comma? ~ ")"}
+bracket_call  =${data ~ ((!NEWLINE ~ WHITESPACE)* ~ (slice|apply))+}
 bracket_apply = {Symbol ~ dict}
-dot_call = {term~ Dot ~ (Integer|Symbol) }
+dot_call      = {term ~ Dot ~ (Integer|Symbol) }
 /*====================================================================================================================*/
 template = {EmptyTemplate|Fragment|OpenClose|SelfClose}
 EmptyTemplate = {"<|>"}
-Fragment = {"<>" ~ text_mode ~ "</>" }
+Fragment  = {"<>" ~ text_mode ~ "</>" }
 OpenClose = {"<" ~ PUSH(Symbol) ~ ">" ~ text_mode+ ~ "</" ~ POP ~ ">" }
 SelfClose = {"<" ~ PUSH(Symbol) ~ text_mode+ ~ POP ~ "/>" }
 text_mode = ${
@@ -142,17 +142,16 @@ HTMLEscape = @{
     "&" ~ ASCII_ALPHA_LOWER ~ ";" |
     "&#" ~ Integer ~";"
 }
-
 /*====================================================================================================================*/
-data = ${template|dict|list|SpecialValue|Byte|Number|String|Symbol}
-dict = {"{" ~ key_value? ~ (Comma ~ key_value)* ~ Comma? ~ "}"}
-list = {"[" ~ expr? ~ (Comma ~ expr)* ~ Comma? ~ "]"}
-slice = !{"[" ~ index ~ (Comma ~ index)* ~ Comma? ~ "]"}
-index ={index_step|index_range|expr}
-key_value =!{key_valid ~ Colon ~ expr}
-key_valid =!{Integer | SYMBOL | String}
-index_range = !{expr? ~ Colon ~ expr?}
-index_step = !{expr? ~ Colon ~ expr? ~ Colon ~ expr?}
+data        =${template|dict|list|SpecialValue|Byte|Number|String|Symbol}
+dict        = {"{" ~ key_value? ~ (Comma ~ key_value)* ~ Comma? ~ "}"}
+list        = {"[" ~ "]"|"[" ~ expr ~ (Comma ~ expr)* ~ Comma? ~ "]"}
+slice       =!{"[" ~ index ~ (Comma ~ index)* ~ Comma? ~ "]"}
+index       = {index_step|index_range|expr}
+key_value   =!{key_valid ~ Colon ~ expr}
+key_valid   =!{Integer | SYMBOL | String}
+index_range =!{expr? ~ Colon ~ expr?}
+index_step  =!{expr? ~ Colon ~ expr? ~ Colon ~ expr?}
 /*====================================================================================================================*/
 ///#D19A66
 SpecialValue = @{"true"|"false"|"null"}
@@ -164,11 +163,11 @@ Byte_OCT = ${"0" ~ ("o"|"O") ~ (Underline? ~ ASCII_OCT_DIGIT)+}
 Byte_HEX = ${"0" ~ ("x"|"X") ~ (Underline? ~ ASCII_HEX_DIGIT)+}
 /*====================================================================================================================*/
 //!#D19A66: Integer|Decimal|DecimalBad
-Number     = ${Complex|Decimal|DecimalBad|Integer}
-Decimal    = ${Integer ~ Dot ~ ASCII_DIGIT+}
-DecimalBad = ${Integer ~ Dot|Dot ~ ASCII_DIGIT+}
-Integer    = @{"0"|ASCII_NONZERO_DIGIT ~ (Underline? ~ ASCII_DIGIT)*}
-Complex    = {(Decimal|Integer)~ SYMBOL}
+Number     =${Complex|Decimal|DecimalBad|Integer}
+Decimal    =${Integer ~ Dot ~ ASCII_DIGIT+}
+DecimalBad =${Integer ~ Dot|Dot ~ ASCII_DIGIT+}
+Integer    =@{"0"|ASCII_NONZERO_DIGIT ~ (Underline? ~ ASCII_DIGIT)*}
+Complex    = {(Decimal|Integer) ~ SYMBOL}
 /*====================================================================================================================*/
 //!#3C963C: String
 //!#98C379: StringText|StringLiteralText
