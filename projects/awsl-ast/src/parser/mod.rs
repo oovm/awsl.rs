@@ -4,7 +4,7 @@ use awsl_pest::{
     AwslParser, Rule,
 };
 
-use crate::ast::{Symbol, SymbolPath};
+use crate::ast::{Expression, List, Symbol, SymbolPath};
 pub use crate::Result;
 use crate::{ASTKind, ASTNode};
 
@@ -127,13 +127,14 @@ impl ParserConfig {
         }
         todo!()
     }
-    fn parse_node(&self, pairs: Pair<Rule>) -> Result<ASTNode> {
+    fn parse_node(&self, pairs: Pair<Rule>) -> Result<Expression> {
         let r = self.get_position(&pairs);
+        let mut terms = None;
         for pair in pairs.into_inner() {
             match pair.as_rule() {
                 Rule::WHITESPACE => continue,
                 Rule::data => {
-                    self.parse_data(pair)?;
+                    terms = Some(self.parse_data(pair)?);
                 }
                 // Rule::pattern | Rule::pattern_bare => pattern = self.parse_pattern(pair),
                 // Rule::expr => terms = self.parse_expr(pair),
@@ -143,22 +144,23 @@ impl ParserConfig {
                 _ => debug_cases!(pair),
             };
         }
-        todo!()
+        Success(terms.unwrap())
     }
-    fn parse_data(&self, pairs: Pair<Rule>) -> Result<ASTNode> {
+    fn parse_data(&self, pairs: Pair<Rule>) -> Result<Expression> {
         let pair = pairs.into_inner().next()?;
-        match pair.as_rule() {
-            Rule::list => self.parse_list(pair),
-            Rule::SYMBOL_PATH => self.parse_symbol_path(pair),
+        let out = match pair.as_rule() {
+            Rule::list => Expression::from(self.parse_list(pair)),
+            Rule::SYMBOL_PATH => Expression::from(self.parse_symbol_path(pair)),
             _ => debug_cases!(pair),
-        }
+        };
+        Success(out)
     }
-    fn parse_list(&self, pairs: Pair<Rule>) -> Result<ASTNode> {
+    fn parse_list(&self, pairs: Pair<Rule>) -> List {
         let r = self.get_position(&pairs);
         for pair in pairs.into_inner() {
             match pair.as_rule() {
                 Rule::WHITESPACE => continue,
-                Rule::expr => self.parse_expr(pair)?,
+                Rule::expr => self.parse_expr(pair),
                 // Rule::pattern | Rule::pattern_bare => pattern = self.parse_pattern(pair),
                 // Rule::expr => terms = self.parse_expr(pair),
                 // Rule::block => block = self.parse_block(pair),
@@ -169,8 +171,7 @@ impl ParserConfig {
         }
         todo!()
     }
-    fn parse_symbol_path(&self, pairs: Pair<Rule>) -> Result<ASTNode> {
-        let r = self.get_position(&pairs);
+    fn parse_symbol_path(&self, pairs: Pair<Rule>) -> SymbolPath {
         let mut symbol = SymbolPath::empty(4);
         for pair in pairs.into_inner() {
             match pair.as_rule() {
@@ -179,6 +180,6 @@ impl ParserConfig {
                 _ => debug_cases!(pair),
             };
         }
-        ASTNode::symbol_path(symbol, r)
+        symbol
     }
 }

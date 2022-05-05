@@ -1,15 +1,16 @@
-use yggdrasil_shared::{Position, PositionRange};
-
-use awsl_error::IResult;
-
-pub use self::symbols::{Symbol, SymbolPath};
+pub use self::containers::List;
+pub use self::symbols::{Operator, OperatorKind, Symbol, SymbolPath};
 pub use self::{
     control::{ControlKeyword, ForInLoop, IfElseChain},
     expression::Expression,
 };
 use crate::{Result, Success};
+use awsl_error::IResult;
 pub use serde_derive::{Deserialize, Serialize};
+use std::collections::VecDeque;
+use yggdrasil_shared::{Position, PositionRange};
 
+mod containers;
 mod control;
 mod expression;
 mod symbols;
@@ -59,8 +60,5 @@ impl ASTNode {
     }
     pub fn keywords(keyword: &'static str, range: PositionRange) -> Result<Self> {
         Success(Self { kind: ASTKind::Keywords(Keywords { keyword: keyword.to_string() }), range })
-    }
-    pub fn symbol_path(symbol: SymbolPath, range: PositionRange) -> Result<Self> {
-        Success(Self { kind: ASTKind::Symbol(symbol), range })
     }
 }
