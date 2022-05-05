@@ -1,5 +1,5 @@
 [package]
-name = "awsl-parser"
+name = "awsl-ast"
 version = "0.1.0"
 authors = ["Aster <192607617@qq.com>"]
 description = "AWSL Window Structure Language"
@@ -13,6 +13,9 @@ text-utils = "0.3"
 url = "2.1"
 yggdrasil-shared = "0.2.1"
 pest_consume = "1.1.1"
+indentation = "0.1.2"
+serde = "1.0.137"
+serde_derive = "1.0.137"
 
 [dependencies.awsl-pest]
 version = "0.1.*"
