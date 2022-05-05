@@ -24,6 +24,7 @@ impl IndentDisplay for ASTKind {
             ASTKind::Expression(_) => {}
             ASTKind::Keywords(_) => {}
             ASTKind::Null => {}
+            ASTKind::Symbol(_) => {}
         }
         todo!()
     }

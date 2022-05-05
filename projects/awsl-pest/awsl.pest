@@ -112,8 +112,8 @@ function_module = {(SYMBOL_PATH ~ Dot)? ~ (SYMBOL ~ Dot)*}
 expression    = {expr ~ eos?}
 expr          = {term ~ (Infix ~ term)*}
 term          = {Prefix* ~ node ~ Suffix*}
-node          = {"(" ~ expr ~ ")"|tuple|bracket_call|data}
-bracket_call  =${data ~ ((!NEWLINE ~ WHITESPACE)* ~ (slice|apply))+}
+node          =_{"(" ~ expr ~ ")" | bracket_call}
+bracket_call  =${data ~ ((!NEWLINE ~ WHITESPACE)* ~ (slice|apply))*}
 bracket_apply = {SYMBOL_PATH ~ dict}
 dot_call      = {term ~ Dot ~ (Integer|SYMBOL_PATH) }
 /*====================================================================================================================*/
@@ -200,7 +200,7 @@ Prefix = @{
 Suffix = @{
    (Bang | Question)
 }
-Infix = _{
+Infix = @{
     Set
   | (Plus|Minus)
   | Power
