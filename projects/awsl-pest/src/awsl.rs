@@ -35,10 +35,7 @@ pub enum Rule {
     FOR,
     IN,
     re_control,
-    RETURN,
-    YIELD,
-    BREAK,
-    CONTINUE,
+    control_word,
     Type,
     classStatement,
     short_block,
@@ -84,7 +81,7 @@ pub enum Rule {
     index,
     index_range,
     index_step,
-    SpecialValue,
+    Boolean,
     Byte,
     Byte_BIN,
     Byte_OCT,
@@ -328,27 +325,12 @@ impl ::pest::Parser<Rule> for AwslParser {
                 #[inline]
                 #[allow(non_snake_case, unused_variables)]
                 pub fn re_control(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
-                    state.rule(Rule::re_control, |state| state.restore_on_err(|state| state.sequence(|state| self::RETURN(state).and_then(|state| super::hidden::skip(state)).and_then(|state| self::expr(state)))).or_else(|state| self::BREAK(state)).or_else(|state| self::CONTINUE(state)))
+                    state.rule(Rule::re_control, |state| state.sequence(|state| self::control_word(state).and_then(|state| super::hidden::skip(state)).and_then(|state| state.optional(|state| state.restore_on_err(|state| self::expr(state))))))
                 }
                 #[inline]
                 #[allow(non_snake_case, unused_variables)]
-                pub fn RETURN(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
-                    state.rule(Rule::RETURN, |state| state.atomic(::pest::Atomicity::Atomic, |state| state.match_string("return")))
-                }
-                #[inline]
-                #[allow(non_snake_case, unused_variables)]
-                pub fn YIELD(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
-                    state.rule(Rule::YIELD, |state| state.atomic(::pest::Atomicity::Atomic, |state| state.match_string("yield")))
-                }
-                #[inline]
-                #[allow(non_snake_case, unused_variables)]
-                pub fn BREAK(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
-                    state.rule(Rule::BREAK, |state| state.atomic(::pest::Atomicity::Atomic, |state| state.match_string("break")))
-                }
-                #[inline]
-                #[allow(non_snake_case, unused_variables)]
-                pub fn CONTINUE(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
-                    state.rule(Rule::CONTINUE, |state| state.atomic(::pest::Atomicity::Atomic, |state| state.match_string("pass")))
+                pub fn control_word(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
+                    state.rule(Rule::control_word, |state| state.atomic(::pest::Atomicity::Atomic, |state| state.match_string("return").or_else(|state| state.match_string("break")).or_else(|state| state.match_string("yield")).or_else(|state| state.match_string("continue"))))
                 }
                 #[inline]
                 #[allow(non_snake_case, unused_variables)]
@@ -528,7 +510,7 @@ impl ::pest::Parser<Rule> for AwslParser {
                 #[inline]
                 #[allow(non_snake_case, unused_variables)]
                 pub fn data(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
-                    state.rule(Rule::data, |state| state.restore_on_err(|state| self::template(state)).or_else(|state| state.restore_on_err(|state| self::dict(state))).or_else(|state| state.restore_on_err(|state| self::list(state))).or_else(|state| self::SpecialValue(state)).or_else(|state| self::Byte(state)).or_else(|state| self::Number(state)).or_else(|state| state.restore_on_err(|state| self::String(state))).or_else(|state| self::Symbol(state)))
+                    state.rule(Rule::data, |state| state.restore_on_err(|state| self::template(state)).or_else(|state| state.restore_on_err(|state| self::dict(state))).or_else(|state| state.restore_on_err(|state| self::list(state))).or_else(|state| self::Boolean(state)).or_else(|state| self::Byte(state)).or_else(|state| self::Number(state)).or_else(|state| state.restore_on_err(|state| self::String(state))).or_else(|state| self::Symbol(state)))
                 }
                 #[inline]
                 #[allow(non_snake_case, unused_variables)]
@@ -577,8 +559,8 @@ impl ::pest::Parser<Rule> for AwslParser {
                 }
                 #[inline]
                 #[allow(non_snake_case, unused_variables)]
-                pub fn SpecialValue(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
-                    state.rule(Rule::SpecialValue, |state| state.atomic(::pest::Atomicity::Atomic, |state| state.match_string("true").or_else(|state| state.match_string("false")).or_else(|state| state.match_string("null"))))
+                pub fn Boolean(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
+                    state.rule(Rule::Boolean, |state| state.atomic(::pest::Atomicity::Atomic, |state| state.match_string("true").or_else(|state| state.match_string("false"))))
                 }
                 #[inline]
                 #[allow(non_snake_case, unused_variables)]
@@ -603,7 +585,7 @@ impl ::pest::Parser<Rule> for AwslParser {
                 #[inline]
                 #[allow(non_snake_case, unused_variables)]
                 pub fn Number(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
-                    state.atomic(::pest::Atomicity::CompoundAtomic, |state| state.rule(Rule::Number, |state| self::Complex(state).or_else(|state| self::Decimal(state)).or_else(|state| self::DecimalBad(state)).or_else(|state| self::Integer(state))))
+                    state.atomic(::pest::Atomicity::CompoundAtomic, |state| state.rule(Rule::Number, |state| self::Complex(state).or_else(|state| self::Decimal(state)).or_else(|state| self::Integer(state))))
                 }
                 #[inline]
                 #[allow(non_snake_case, unused_variables)]
@@ -1041,10 +1023,7 @@ impl ::pest::Parser<Rule> for AwslParser {
             Rule::FOR => rules::FOR(state),
             Rule::IN => rules::IN(state),
             Rule::re_control => rules::re_control(state),
-            Rule::RETURN => rules::RETURN(state),
-            Rule::YIELD => rules::YIELD(state),
-            Rule::BREAK => rules::BREAK(state),
-            Rule::CONTINUE => rules::CONTINUE(state),
+            Rule::control_word => rules::control_word(state),
             Rule::Type => rules::Type(state),
             Rule::classStatement => rules::classStatement(state),
             Rule::short_block => rules::short_block(state),
@@ -1090,7 +1069,7 @@ impl ::pest::Parser<Rule> for AwslParser {
             Rule::index => rules::index(state),
             Rule::index_range => rules::index_range(state),
             Rule::index_step => rules::index_step(state),
-            Rule::SpecialValue => rules::SpecialValue(state),
+            Rule::Boolean => rules::Boolean(state),
             Rule::Byte => rules::Byte(state),
             Rule::Byte_BIN => rules::Byte_BIN(state),
             Rule::Byte_OCT => rules::Byte_OCT(state),

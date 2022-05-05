@@ -53,16 +53,9 @@ for_in_loop   = {SYMBOL ~ IN ~ expr ~ block}
 FOR = @{"for"}
 IN  = @{"in"}
 /*====================================================================================================================*/
-re_control = {
-    RETURN ~ expr
-  | BREAK
-  | CONTINUE
-}
-//!#C678DD: Return|Yield|Break|Pass
-RETURN = @{"return"}
-YIELD = @{"yield"}
-BREAK = @{"break"}
-CONTINUE = @{"pass"}
+re_control = {control_word ~ expr?}
+/// #C678DD
+control_word = @{"return"|"break"|"yield"|"continue"}
 /*====================================================================================================================*/
 ///#C678DD
 Type = @{"type"}
@@ -142,7 +135,7 @@ HTMLEscape = @{
     "&#" ~ Integer ~";"
 }
 /*====================================================================================================================*/
-data        = {template|dict|list|SpecialValue|Byte|Number|String|Symbol}
+data        = {template|dict|list|Boolean|Byte|Number|String|Symbol}
 
 tuple       = {"(" ~ ")"|"(" ~ expr ~ Comma ~ ")"|"(" ~ expr ~ (Comma ~ expr)* ~ Comma? ~ ")"}
 
@@ -157,7 +150,7 @@ index_range =!{expr? ~ Colon ~ expr?}
 index_step  =!{expr? ~ Colon ~ expr? ~ Colon ~ expr?}
 /*====================================================================================================================*/
 ///#D19A66
-SpecialValue = @{"true"|"false"|"null"}
+Boolean = @{"true"|"false"}
 /*====================================================================================================================*/
 ///#D19A66
 Byte     = ${Byte_BIN|Byte_OCT|Byte_HEX}
@@ -166,7 +159,7 @@ Byte_OCT = ${"0" ~ ("o"|"O") ~ (Underline? ~ ASCII_OCT_DIGIT)+}
 Byte_HEX = ${"0" ~ ("x"|"X") ~ (Underline? ~ ASCII_HEX_DIGIT)+}
 /*====================================================================================================================*/
 //!#D19A66: Integer|Decimal|DecimalBad
-Number     =${Complex|Decimal|DecimalBad|Integer}
+Number     =${Complex|Decimal|Integer}
 Decimal    =${Integer ~ Dot ~ ASCII_DIGIT+}
 DecimalBad =${Integer ~ Dot|Dot ~ ASCII_DIGIT+}
 Integer    =@{"0"|ASCII_NONZERO_DIGIT ~ (Underline? ~ ASCII_DIGIT)*}
