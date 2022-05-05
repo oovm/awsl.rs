@@ -175,13 +175,10 @@ impl ParserConfig {
         for pair in pairs.into_inner() {
             match pair.as_rule() {
                 Rule::WHITESPACE => continue,
-                Rule::SYMBOL => symbol.push(self.parse_symbol(pair)),
+                Rule::SYMBOL => symbol.push(pair.to_string(), self.get_position(&pair)),
                 _ => debug_cases!(pair),
             };
         }
         ASTNode::symbol_path(symbol, r)
-    }
-    fn parse_symbol(&self, pairs: Pair<Rule>) -> Symbol {
-        Symbol::new(pairs.to_string(), self.get_position(&pairs))
     }
 }

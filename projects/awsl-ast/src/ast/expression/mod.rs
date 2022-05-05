@@ -3,6 +3,7 @@ mod methods;
 use super::*;
 use crate::ast::symbols::Operator;
 
+#[derive(Debug, Clone, Eq, PartialEq, Hash, Serialize, Deserialize)]
 pub enum Expression {
     Unary(Box<UnaryExpression>),
     Binary(Box<BinaryExpression>),

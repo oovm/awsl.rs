@@ -21,7 +21,7 @@ impl IndentDisplay for ASTKind {
             ASTKind::Statement(_) => {}
             ASTKind::Block(_) => {}
             ASTKind::ForInLoop(_) => {}
-            ASTKind::Expression(_) => {}
+            ASTKind::Expression(_, _) => {}
             ASTKind::Keywords(_) => {}
             ASTKind::Null => {}
             ASTKind::Symbol(_) => {}

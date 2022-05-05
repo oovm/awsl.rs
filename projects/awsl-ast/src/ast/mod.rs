@@ -17,28 +17,28 @@ mod traits;
 
 pub type ASTNode = Ranged<ASTKind>;
 
-#[derive(Debug, Clone, Eq, PartialEq)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash, Serialize, Deserialize)]
 pub struct Ranged<T> {
     pub kind: T,
     pub range: PositionRange,
 }
 
-#[derive(Debug, Clone, Eq, PartialEq)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash, Serialize, Deserialize)]
 pub enum ASTKind {
     Root(Vec<ASTNode>),
     Statement(Vec<ASTNode>),
     Block(Vec<ASTNode>),
     ForInLoop(Box<ForInLoop>),
     /// eos?
-    Expression(Box<Expression>, bool),
+    Expression(Expression, bool),
     Keywords(Keywords),
     Symbol(SymbolPath),
     Null,
 }
 
-#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash, Serialize, Deserialize)]
 pub struct Keywords {
-    pub keyword: &'static str,
+    pub keyword: String,
 }
 
 impl ASTNode {
@@ -55,10 +55,10 @@ impl ASTNode {
         Success(Self { kind: ASTKind::ForInLoop(box ForInLoop { pattern, terms, guard, block, for_else }), range })
     }
     pub fn expression(expression: Expression, eos: bool, range: PositionRange) -> Result<Self> {
-        Success(Self { kind: ASTKind::Expression(box expression, eos), range })
+        Success(Self { kind: ASTKind::Expression(expression, eos), range })
     }
     pub fn keywords(keyword: &'static str, range: PositionRange) -> Result<Self> {
-        Success(Self { kind: ASTKind::Keywords(Keywords { keyword }), range })
+        Success(Self { kind: ASTKind::Keywords(Keywords { keyword: keyword.to_string() }), range })
     }
     pub fn symbol_path(symbol: SymbolPath, range: PositionRange) -> Result<Self> {
         Success(Self { kind: ASTKind::Symbol(symbol), range })

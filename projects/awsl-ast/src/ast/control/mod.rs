@@ -26,7 +26,7 @@ mod methods;
 ///     }
 /// }
 /// ```
-#[derive(Debug, Clone, Eq, PartialEq)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash, Serialize, Deserialize)]
 pub struct ForInLoop {
     pub pattern: ASTNode,
     pub terms: ASTNode,
@@ -35,6 +35,7 @@ pub struct ForInLoop {
     pub for_else: Option<ASTNode>,
 }
 
+#[derive(Debug, Clone, Eq, PartialEq, Hash, Serialize, Deserialize)]
 pub enum ControlKeyword {
     Return,
     Break,
