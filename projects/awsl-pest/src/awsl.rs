@@ -103,8 +103,7 @@ pub enum Rule {
     COMMENT,
     LineCommentSimple,
     MultiLineComment,
-    Symbol,
-    namespace,
+    SYMBOL_PATH,
     SYMBOL,
     Prefix,
     Suffix,
@@ -360,7 +359,7 @@ impl ::pest::Parser<Rule> for AwslParser {
                 #[inline]
                 #[allow(non_snake_case, unused_variables)]
                 pub fn extendStatement(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
-                    state.rule(Rule::extendStatement, |state| state.sequence(|state| state.match_string("extend").and_then(|state| super::hidden::skip(state)).and_then(|state| self::Symbol(state)).and_then(|state| super::hidden::skip(state)).and_then(|state| state.optional(|state| state.match_string("with").or_else(|state| self::Colon(state)))).and_then(|state| super::hidden::skip(state)).and_then(|state| self::short_block(state))))
+                    state.rule(Rule::extendStatement, |state| state.sequence(|state| state.match_string("extend").and_then(|state| super::hidden::skip(state)).and_then(|state| self::SYMBOL_PATH(state)).and_then(|state| super::hidden::skip(state)).and_then(|state| state.optional(|state| state.match_string("with").or_else(|state| self::Colon(state)))).and_then(|state| super::hidden::skip(state)).and_then(|state| self::short_block(state))))
                 }
                 #[inline]
                 #[allow(non_snake_case, unused_variables)]
@@ -380,7 +379,7 @@ impl ::pest::Parser<Rule> for AwslParser {
                 #[inline]
                 #[allow(non_snake_case, unused_variables)]
                 pub fn assign_pair(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
-                    state.rule(Rule::assign_pair, |state| self::Symbol(state))
+                    state.rule(Rule::assign_pair, |state| self::SYMBOL(state))
                 }
                 #[inline]
                 #[allow(non_snake_case, unused_variables)]
@@ -410,7 +409,7 @@ impl ::pest::Parser<Rule> for AwslParser {
                 #[inline]
                 #[allow(non_snake_case, unused_variables)]
                 pub fn annotation_call(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
-                    state.rule(Rule::annotation_call, |state| state.atomic(::pest::Atomicity::Atomic, |state| state.sequence(|state| state.match_string("@").and_then(|state| state.restore_on_err(|state| self::list(state)).or_else(|state| state.restore_on_err(|state| self::apply(state))).or_else(|state| self::Symbol(state))))))
+                    state.rule(Rule::annotation_call, |state| state.atomic(::pest::Atomicity::Atomic, |state| state.sequence(|state| state.match_string("@").and_then(|state| state.restore_on_err(|state| self::list(state)).or_else(|state| state.restore_on_err(|state| self::apply(state))).or_else(|state| self::SYMBOL_PATH(state))))))
                 }
                 #[inline]
                 #[allow(non_snake_case, unused_variables)]
@@ -430,7 +429,7 @@ impl ::pest::Parser<Rule> for AwslParser {
                 #[inline]
                 #[allow(non_snake_case, unused_variables)]
                 pub fn function_module(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
-                    state.rule(Rule::function_module, |state| state.sequence(|state| state.optional(|state| state.sequence(|state| self::namespace(state).and_then(|state| super::hidden::skip(state)).and_then(|state| self::Dot(state)))).and_then(|state| super::hidden::skip(state)).and_then(|state| state.sequence(|state| state.optional(|state| state.sequence(|state| self::SYMBOL(state).and_then(|state| super::hidden::skip(state)).and_then(|state| self::Dot(state))).and_then(|state| state.repeat(|state| state.sequence(|state| super::hidden::skip(state).and_then(|state| state.sequence(|state| self::SYMBOL(state).and_then(|state| super::hidden::skip(state)).and_then(|state| self::Dot(state))))))))))))
+                    state.rule(Rule::function_module, |state| state.sequence(|state| state.optional(|state| state.sequence(|state| self::SYMBOL_PATH(state).and_then(|state| super::hidden::skip(state)).and_then(|state| self::Dot(state)))).and_then(|state| super::hidden::skip(state)).and_then(|state| state.sequence(|state| state.optional(|state| state.sequence(|state| self::SYMBOL(state).and_then(|state| super::hidden::skip(state)).and_then(|state| self::Dot(state))).and_then(|state| state.repeat(|state| state.sequence(|state| super::hidden::skip(state).and_then(|state| state.sequence(|state| self::SYMBOL(state).and_then(|state| super::hidden::skip(state)).and_then(|state| self::Dot(state))))))))))))
                 }
                 #[inline]
                 #[allow(non_snake_case, unused_variables)]
@@ -460,12 +459,12 @@ impl ::pest::Parser<Rule> for AwslParser {
                 #[inline]
                 #[allow(non_snake_case, unused_variables)]
                 pub fn bracket_apply(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
-                    state.rule(Rule::bracket_apply, |state| state.sequence(|state| self::Symbol(state).and_then(|state| super::hidden::skip(state)).and_then(|state| self::dict(state))))
+                    state.rule(Rule::bracket_apply, |state| state.sequence(|state| self::SYMBOL_PATH(state).and_then(|state| super::hidden::skip(state)).and_then(|state| self::dict(state))))
                 }
                 #[inline]
                 #[allow(non_snake_case, unused_variables)]
                 pub fn dot_call(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
-                    state.rule(Rule::dot_call, |state| state.sequence(|state| self::term(state).and_then(|state| super::hidden::skip(state)).and_then(|state| self::Dot(state)).and_then(|state| super::hidden::skip(state)).and_then(|state| self::Integer(state).or_else(|state| self::Symbol(state)))))
+                    state.rule(Rule::dot_call, |state| state.sequence(|state| self::term(state).and_then(|state| super::hidden::skip(state)).and_then(|state| self::Dot(state)).and_then(|state| super::hidden::skip(state)).and_then(|state| self::Integer(state).or_else(|state| self::SYMBOL_PATH(state)))))
                 }
                 #[inline]
                 #[allow(non_snake_case, unused_variables)]
@@ -485,12 +484,12 @@ impl ::pest::Parser<Rule> for AwslParser {
                 #[inline]
                 #[allow(non_snake_case, unused_variables)]
                 pub fn OpenClose(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
-                    state.rule(Rule::OpenClose, |state| state.sequence(|state| state.match_string("<").and_then(|state| super::hidden::skip(state)).and_then(|state| state.stack_push(|state| self::Symbol(state))).and_then(|state| super::hidden::skip(state)).and_then(|state| state.match_string(">")).and_then(|state| super::hidden::skip(state)).and_then(|state| state.sequence(|state| self::text_mode(state).and_then(|state| super::hidden::skip(state)).and_then(|state| state.sequence(|state| state.optional(|state| state.restore_on_err(|state| self::text_mode(state)).and_then(|state| state.repeat(|state| state.sequence(|state| super::hidden::skip(state).and_then(|state| state.restore_on_err(|state| self::text_mode(state))))))))))).and_then(|state| super::hidden::skip(state)).and_then(|state| state.match_string("</")).and_then(|state| super::hidden::skip(state)).and_then(|state| self::POP(state)).and_then(|state| super::hidden::skip(state)).and_then(|state| state.match_string(">"))))
+                    state.rule(Rule::OpenClose, |state| state.sequence(|state| state.match_string("<").and_then(|state| super::hidden::skip(state)).and_then(|state| state.stack_push(|state| self::SYMBOL_PATH(state))).and_then(|state| super::hidden::skip(state)).and_then(|state| state.match_string(">")).and_then(|state| super::hidden::skip(state)).and_then(|state| state.sequence(|state| self::text_mode(state).and_then(|state| super::hidden::skip(state)).and_then(|state| state.sequence(|state| state.optional(|state| state.restore_on_err(|state| self::text_mode(state)).and_then(|state| state.repeat(|state| state.sequence(|state| super::hidden::skip(state).and_then(|state| state.restore_on_err(|state| self::text_mode(state))))))))))).and_then(|state| super::hidden::skip(state)).and_then(|state| state.match_string("</")).and_then(|state| super::hidden::skip(state)).and_then(|state| self::POP(state)).and_then(|state| super::hidden::skip(state)).and_then(|state| state.match_string(">"))))
                 }
                 #[inline]
                 #[allow(non_snake_case, unused_variables)]
                 pub fn SelfClose(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
-                    state.rule(Rule::SelfClose, |state| state.sequence(|state| state.match_string("<").and_then(|state| super::hidden::skip(state)).and_then(|state| state.stack_push(|state| self::Symbol(state))).and_then(|state| super::hidden::skip(state)).and_then(|state| state.sequence(|state| self::text_mode(state).and_then(|state| super::hidden::skip(state)).and_then(|state| state.sequence(|state| state.optional(|state| state.restore_on_err(|state| self::text_mode(state)).and_then(|state| state.repeat(|state| state.sequence(|state| super::hidden::skip(state).and_then(|state| state.restore_on_err(|state| self::text_mode(state))))))))))).and_then(|state| super::hidden::skip(state)).and_then(|state| self::POP(state)).and_then(|state| super::hidden::skip(state)).and_then(|state| state.match_string("/>"))))
+                    state.rule(Rule::SelfClose, |state| state.sequence(|state| state.match_string("<").and_then(|state| super::hidden::skip(state)).and_then(|state| state.stack_push(|state| self::SYMBOL_PATH(state))).and_then(|state| super::hidden::skip(state)).and_then(|state| state.sequence(|state| self::text_mode(state).and_then(|state| super::hidden::skip(state)).and_then(|state| state.sequence(|state| state.optional(|state| state.restore_on_err(|state| self::text_mode(state)).and_then(|state| state.repeat(|state| state.sequence(|state| super::hidden::skip(state).and_then(|state| state.restore_on_err(|state| self::text_mode(state))))))))))).and_then(|state| super::hidden::skip(state)).and_then(|state| self::POP(state)).and_then(|state| super::hidden::skip(state)).and_then(|state| state.match_string("/>"))))
                 }
                 #[inline]
                 #[allow(non_snake_case, unused_variables)]
@@ -510,7 +509,7 @@ impl ::pest::Parser<Rule> for AwslParser {
                 #[inline]
                 #[allow(non_snake_case, unused_variables)]
                 pub fn data(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
-                    state.rule(Rule::data, |state| state.restore_on_err(|state| self::template(state)).or_else(|state| state.restore_on_err(|state| self::dict(state))).or_else(|state| state.restore_on_err(|state| self::list(state))).or_else(|state| self::Boolean(state)).or_else(|state| self::Byte(state)).or_else(|state| self::Number(state)).or_else(|state| state.restore_on_err(|state| self::String(state))).or_else(|state| self::Symbol(state)))
+                    state.rule(Rule::data, |state| state.restore_on_err(|state| self::template(state)).or_else(|state| state.restore_on_err(|state| self::dict(state))).or_else(|state| state.restore_on_err(|state| self::list(state))).or_else(|state| self::Boolean(state)).or_else(|state| self::Byte(state)).or_else(|state| self::Number(state)).or_else(|state| state.restore_on_err(|state| self::String(state))).or_else(|state| self::SYMBOL_PATH(state)))
                 }
                 #[inline]
                 #[allow(non_snake_case, unused_variables)]
@@ -669,13 +668,8 @@ impl ::pest::Parser<Rule> for AwslParser {
                 }
                 #[inline]
                 #[allow(non_snake_case, unused_variables)]
-                pub fn Symbol(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
-                    state.atomic(::pest::Atomicity::CompoundAtomic, |state| state.rule(Rule::Symbol, |state| self::namespace(state).or_else(|state| self::SYMBOL(state))))
-                }
-                #[inline]
-                #[allow(non_snake_case, unused_variables)]
-                pub fn namespace(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
-                    state.atomic(::pest::Atomicity::CompoundAtomic, |state| state.rule(Rule::namespace, |state| state.sequence(|state| self::SYMBOL(state).and_then(|state| state.sequence(|state| self::Proportion(state).and_then(|state| self::SYMBOL(state)))).and_then(|state| state.repeat(|state| state.sequence(|state| self::Proportion(state).and_then(|state| self::SYMBOL(state))))))))
+                pub fn SYMBOL_PATH(state: Box<::pest::ParserState<Rule>>) -> ::pest::ParseResult<Box<::pest::ParserState<Rule>>> {
+                    state.atomic(::pest::Atomicity::CompoundAtomic, |state| state.rule(Rule::SYMBOL_PATH, |state| state.sequence(|state| self::SYMBOL(state).and_then(|state| state.repeat(|state| state.sequence(|state| self::Proportion(state).and_then(|state| self::SYMBOL(state))))))))
                 }
                 #[inline]
                 #[allow(non_snake_case, unused_variables)]
@@ -1091,8 +1085,7 @@ impl ::pest::Parser<Rule> for AwslParser {
             Rule::COMMENT => rules::COMMENT(state),
             Rule::LineCommentSimple => rules::LineCommentSimple(state),
             Rule::MultiLineComment => rules::MultiLineComment(state),
-            Rule::Symbol => rules::Symbol(state),
-            Rule::namespace => rules::namespace(state),
+            Rule::SYMBOL_PATH => rules::SYMBOL_PATH(state),
             Rule::SYMBOL => rules::SYMBOL(state),
             Rule::Prefix => rules::Prefix(state),
             Rule::Suffix => rules::Suffix(state),

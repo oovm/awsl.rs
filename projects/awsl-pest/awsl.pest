@@ -72,7 +72,7 @@ short_statement = {
 short_annotation = {annotation_call+~short_statement}
 /*====================================================================================================================*/
 extendStatement = {
-    "extend" ~ Symbol ~ ("with"|Colon)? ~ short_block
+    "extend" ~ SYMBOL_PATH ~ ("with"|Colon)? ~ short_block
 }
 /*====================================================================================================================*/
 assignStatement = {"let" ~ assign_terms}
@@ -81,7 +81,7 @@ assign_terms = _{
   | assign_name ~ block_or_stmt?
 }
 assign_name = _{assign_pair ~ (Comma ~ assign_pair)* ~ Comma?}
-assign_pair = {Symbol}
+assign_pair = {SYMBOL}
 
 /*====================================================================================================================*/
 defineStatement = {"def" ~ define_terms}
@@ -96,7 +96,7 @@ define_pair = {SYMBOL ~ (Set ~ expr)?}
 /*====================================================================================================================*/
 //!Orange:annotation_call
 annotation = {annotation_call+~statement}
-annotation_call = @{"@"~(list|apply|Symbol)}
+annotation_call = @{"@"~(list|apply|SYMBOL_PATH)}
 /*====================================================================================================================*/
 apply = !{
      "(" ~ apply_kv? ~ (Comma ~ apply_kv)* ~ Comma? ~")"
@@ -107,21 +107,21 @@ apply_kv = {SYMBOL~ Colon ~ expr|expr}
 
 ///#61AFEF
 function_name = {SYMBOL}
-function_module = {(namespace ~ Dot)? ~ (SYMBOL ~ Dot)*}
+function_module = {(SYMBOL_PATH ~ Dot)? ~ (SYMBOL ~ Dot)*}
 /*====================================================================================================================*/
 expression    = {expr ~ eos?}
 expr          = {term ~ (Infix ~ term)*}
 term          = {Prefix* ~ node ~ Suffix*}
 node          = {"(" ~ expr ~ ")"|tuple|bracket_call|data}
 bracket_call  =${data ~ ((!NEWLINE ~ WHITESPACE)* ~ (slice|apply))+}
-bracket_apply = {Symbol ~ dict}
-dot_call      = {term ~ Dot ~ (Integer|Symbol) }
+bracket_apply = {SYMBOL_PATH ~ dict}
+dot_call      = {term ~ Dot ~ (Integer|SYMBOL_PATH) }
 /*====================================================================================================================*/
 template = {EmptyTemplate|Fragment|OpenClose|SelfClose}
 EmptyTemplate = {"<|>"}
 Fragment  = {"<>" ~ text_mode ~ "</>" }
-OpenClose = {"<" ~ PUSH(Symbol) ~ ">" ~ text_mode+ ~ "</" ~ POP ~ ">" }
-SelfClose = {"<" ~ PUSH(Symbol) ~ text_mode+ ~ POP ~ "/>" }
+OpenClose = {"<" ~ PUSH(SYMBOL_PATH) ~ ">" ~ text_mode+ ~ "</" ~ POP ~ ">" }
+SelfClose = {"<" ~ PUSH(SYMBOL_PATH) ~ text_mode+ ~ POP ~ "/>" }
 text_mode = ${
     "{" ~ statement* ~ "}"|template+|(HTMLEscape|text_char)+
 }
@@ -135,7 +135,7 @@ HTMLEscape = @{
     "&#" ~ Integer ~";"
 }
 /*====================================================================================================================*/
-data        = {template|dict|list|Boolean|Byte|Number|String|Symbol}
+data        = {template|dict|list|Boolean|Byte|Number|String|SYMBOL_PATH}
 
 tuple       = {"(" ~ ")"|"(" ~ expr ~ Comma ~ ")"|"(" ~ expr ~ (Comma ~ expr)* ~ Comma? ~ ")"}
 
@@ -185,8 +185,7 @@ LineCommentSimple = ${ "//" ~ (!NEWLINE ~ ANY)*}
 MultiLineComment = ${ "/*" ~ (MultiLineComment | !"*/" ~ ANY)* ~ "*/"}
 /*====================================================================================================================*/
 ///#61AFEF
-Symbol = ${namespace|SYMBOL}
-namespace = ${SYMBOL ~ (Proportion ~ SYMBOL)+}
+SYMBOL_PATH = ${SYMBOL ~ (Proportion ~ SYMBOL)*}
 SYMBOL = @{
     XID_START ~  XID_CONTINUE*
   | Underline ~ XID_CONTINUE+

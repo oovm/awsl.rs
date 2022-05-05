@@ -47,7 +47,7 @@ impl ParserConfig {
         for pair in pairs.into_inner() {
             let code = match pair.as_rule() {
                 Rule::WHITESPACE => continue,
-                // Rule::expression => self.parse_expression(pair),
+                Rule::expression => self.parse_expression(pair)?,
                 // Rule::if_statement => self.parse_if_else(pair),
                 Rule::for_statement => self.parse_for_in(pair)?,
                 // Rule::assign_statement => self.parse_assign(pair),
@@ -76,5 +76,89 @@ impl ParserConfig {
             };
         }
         ASTNode::for_in_loop(pattern, terms, block, guard, for_else, r)
+    }
+}
+
+impl ParserConfig {
+    fn parse_expression(&self, pairs: Pair<Rule>) -> Result<ASTNode> {
+        let r = self.get_position(&pairs);
+        let mut terms = ASTNode::default();
+        for pair in pairs.into_inner() {
+            match pair.as_rule() {
+                Rule::WHITESPACE => continue,
+                Rule::expr => self.parse_expr(pair)?,
+                _ => debug_cases!(pair),
+            };
+        }
+        todo!()
+    }
+    fn parse_expr(&self, pairs: Pair<Rule>) -> Result<ASTNode> {
+        let r = self.get_position(&pairs);
+        for pair in pairs.into_inner() {
+            match pair.as_rule() {
+                Rule::WHITESPACE => continue,
+                Rule::term => self.parse_term(pair),
+                // Rule::pattern | Rule::pattern_bare => pattern = self.parse_pattern(pair),
+                // Rule::expr => terms = self.parse_expr(pair),
+                // Rule::block => block = self.parse_block(pair),
+                // Rule::for_if => guard = Some(self.parse_expr(pair.into_inner().nth(0).unwrap())),
+                // Rule::for_else => for_else = Some(self.parse_block(pair.into_inner().nth(0).unwrap())),
+                _ => debug_cases!(pair),
+            };
+        }
+        todo!()
+    }
+    fn parse_term(&self, pairs: Pair<Rule>) -> Result<ASTNode> {
+        let r = self.get_position(&pairs);
+        for pair in pairs.into_inner() {
+            match pair.as_rule() {
+                Rule::WHITESPACE => continue,
+                Rule::node => {
+                    for inner in pair.into_inner() {
+                        self.parse_data(inner)?;
+                    }
+                }
+                // Rule::pattern | Rule::pattern_bare => pattern = self.parse_pattern(pair),
+                // Rule::expr => terms = self.parse_expr(pair),
+                // Rule::block => block = self.parse_block(pair),
+                // Rule::for_if => guard = Some(self.parse_expr(pair.into_inner().nth(0).unwrap())),
+                // Rule::for_else => for_else = Some(self.parse_block(pair.into_inner().nth(0).unwrap())),
+                _ => debug_cases!(pair),
+            };
+        }
+        todo!()
+    }
+    fn parse_data(&self, pairs: Pair<Rule>) -> Result<ASTNode> {
+        let r = self.get_position(&pairs);
+        for pair in pairs.into_inner() {
+            match pair.as_rule() {
+                Rule::WHITESPACE => continue,
+                Rule::list => self.parse_list(pair)?,
+                Rule::Symbol => continue,
+                // Rule::pattern | Rule::pattern_bare => pattern = self.parse_pattern(pair),
+                // Rule::expr => terms = self.parse_expr(pair),
+                // Rule::block => block = self.parse_block(pair),
+                // Rule::for_if => guard = Some(self.parse_expr(pair.into_inner().nth(0).unwrap())),
+                // Rule::for_else => for_else = Some(self.parse_block(pair.into_inner().nth(0).unwrap())),
+                _ => debug_cases!(pair),
+            };
+        }
+        todo!()
+    }
+    fn parse_list(&self, pairs: Pair<Rule>) -> Result<ASTNode> {
+        let r = self.get_position(&pairs);
+        for pair in pairs.into_inner() {
+            match pair.as_rule() {
+                Rule::WHITESPACE => continue,
+                Rule::expr => self.parse_expr(pair)?,
+                // Rule::pattern | Rule::pattern_bare => pattern = self.parse_pattern(pair),
+                // Rule::expr => terms = self.parse_expr(pair),
+                // Rule::block => block = self.parse_block(pair),
+                // Rule::for_if => guard = Some(self.parse_expr(pair.into_inner().nth(0).unwrap())),
+                // Rule::for_else => for_else = Some(self.parse_block(pair.into_inner().nth(0).unwrap())),
+                _ => debug_cases!(pair),
+            };
+        }
+        todo!()
     }
 }
