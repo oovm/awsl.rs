@@ -1,6 +1,6 @@
-use std::fmt::{Display, Formatter};
-use indentation::{IndentDisplay, IndentFormatter};
 use crate::{ASTKind, ASTNode};
+use indentation::{IndentDisplay, IndentFormatter};
+use std::fmt::{Display, Formatter};
 
 impl Display for ASTNode {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {

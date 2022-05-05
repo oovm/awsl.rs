@@ -1,8 +1,8 @@
 mod formatter;
-mod macros;
 mod from_raw;
+mod macros;
 
-pub use self::formatter::{IndentFormatter};
+pub use self::formatter::IndentFormatter;
 
 /// The main entry point for the program.
 pub trait IndentDisplay {

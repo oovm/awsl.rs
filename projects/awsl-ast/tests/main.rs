@@ -19,7 +19,6 @@ pub fn render(input: &str) -> Result<String> {
     let out = parser.parse(input)?;
     Success(format!("{}", out))
 }
-//
 // pub fn render_steps(input: &str) -> Result<String> {
 //     let mut parser = ParserConfig::default();
 //     let out = parser.parse(input)?;

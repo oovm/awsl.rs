@@ -3,5 +3,4 @@
 mod error;
 
 pub use crate::IResult::{Failure, Success};
-pub use error::{AwslErrorKind, IResult, Result, AwslError};
-
+pub use error::{AwslError, AwslErrorKind, IResult, Result};

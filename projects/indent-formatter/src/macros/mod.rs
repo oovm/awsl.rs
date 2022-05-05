@@ -1,5 +1,3 @@
-
-
 #[macro_export]
 macro_rules! indent_fmt {
     ($dst:expr, $($arg:tt)*) => {

@@ -19,11 +19,16 @@ pub enum TResult<T, E> {
     Success(T),
 }
 
-impl<T, E> IResult<T, E> where E: Error {
+impl<T, E> IResult<T, E>
+where
+    E: Error,
+{
     pub fn unwrap(self) -> T {
         match self {
-            IResult::Success(s) => { s }
-            IResult::Failure(e) => { panic!("{:?}", e) }
+            IResult::Success(s) => s,
+            IResult::Failure(e) => {
+                panic!("{:?}", e)
+            }
         }
     }
 }

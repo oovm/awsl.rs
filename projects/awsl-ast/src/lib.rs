@@ -6,6 +6,6 @@ pub use awsl_error::{Failure, Result, Success};
 pub use parser::ParserConfig;
 
 mod ast;
-mod value;
 mod parser;
 mod traits;
+mod value;

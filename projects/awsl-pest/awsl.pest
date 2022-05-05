@@ -88,7 +88,7 @@ assign_terms = _{
   | assign_name ~ block_or_stmt?
 }
 assign_name = _{assign_pair ~ (Comma ~ assign_pair)* ~ Comma?}
-assign_pair = {Modifier* ~ Symbol}
+assign_pair = {Symbol}
 
 /*====================================================================================================================*/
 defineStatement = {"def" ~ define_terms}
@@ -117,10 +117,9 @@ function_name = {SYMBOL}
 function_module = {(namespace ~ Dot)? ~ (SYMBOL ~ Dot)*}
 /*====================================================================================================================*/
 expression    = {expr ~ eos?}
-expr          =!{term ~ (Infix ~ term)*}
+expr          = {term ~ (Infix ~ term)*}
 term          = {Prefix* ~ node ~ Suffix*}
 node          = {"(" ~ expr ~ ")"|tuple|bracket_call|data}
-tuple         = {"(" ~ expr ~ (Comma ~ expr)* ~ Comma? ~ ")"}
 bracket_call  =${data ~ ((!NEWLINE ~ WHITESPACE)* ~ (slice|apply))+}
 bracket_apply = {Symbol ~ dict}
 dot_call      = {term ~ Dot ~ (Integer|Symbol) }
@@ -144,12 +143,16 @@ HTMLEscape = @{
 }
 /*====================================================================================================================*/
 data        =${template|dict|list|SpecialValue|Byte|Number|String|Symbol}
-dict        = {"{" ~ key_value? ~ (Comma ~ key_value)* ~ Comma? ~ "}"}
+
+tuple       = {"(" ~ ")"|"(" ~ expr ~ Comma ~ ")"|"(" ~ expr ~ (Comma ~ expr)* ~ Comma? ~ ")"}
+
+dict        = {"{" ~ "}"|"{" ~ pair ~ (Comma ~ pair)* ~ Comma? ~ "}"}
+pair        =!{key_valid ~ Colon ~ expr}
+key_valid   =!{Integer | SYMBOL | String}
+
 list        = {"[" ~ "]"|"[" ~ expr ~ (Comma ~ expr)* ~ Comma? ~ "]"}
 slice       =!{"[" ~ index ~ (Comma ~ index)* ~ Comma? ~ "]"}
 index       = {index_step|index_range|expr}
-key_value   =!{key_valid ~ Colon ~ expr}
-key_valid   =!{Integer | SYMBOL | String}
 index_range =!{expr? ~ Colon ~ expr?}
 index_step  =!{expr? ~ Colon ~ expr? ~ Colon ~ expr?}
 /*====================================================================================================================*/
@@ -183,17 +186,10 @@ StringEnd         = @{POP ~ Apostrophe{1}}
 // NEWLINE = @{"\r"~"\n"|"\r"|"\n"}
 WHITESPACE = {NEWLINE|WHITE_SPACE}
 //!#7F848E: MultiLineComment
-COMMENT = {MultiLineComment|LineCommentTodo|LineCommentFixme|LineCommentWarning|LineCommentSimple}
+COMMENT = {MultiLineComment|LineCommentSimple}
 ///Gray
 LineCommentSimple = ${ "//" ~ (!NEWLINE ~ ANY)*}
-///Green
-LineCommentTodo = ${ "//?" ~ (!NEWLINE ~ ANY)*}
-///Red
-LineCommentFixme = ${ "//!" ~ (!NEWLINE ~ ANY)*}
-///Yellow
-LineCommentWarning = ${ "//*" ~ (!NEWLINE ~ ANY)*}
-///Gray
-MultiLineComment = ${ "%%%" ~ (MultiLineComment | !"%%%" ~ ANY)* ~ "%%%"}
+MultiLineComment = ${ "/*" ~ (MultiLineComment | !"*/" ~ ANY)* ~ "*/"}
 /*====================================================================================================================*/
 ///#61AFEF
 Symbol = ${namespace|SYMBOL}
@@ -204,7 +200,7 @@ SYMBOL = @{
 }
 /*====================================================================================================================*/
 //!Orange: Modifier
-Modifier = !{(!(SYMBOL~(Set|Colon|Semicolon|"{"|"}"|"("|")"|"<"|">")) ~SYMBOL)}
+// Modifier = !{(!(SYMBOL~(Set|Colon|Semicolon|"{"|"}"|"("|")"|"<"|">")) ~SYMBOL)}
 //!#56B6C2: Prefix|Infix|Postfix
 Prefix = @{
     (Bang|Plus|Minus|Star)

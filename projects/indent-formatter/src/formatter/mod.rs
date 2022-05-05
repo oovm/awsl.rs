@@ -1,5 +1,7 @@
-use std::fmt::{Arguments, Formatter, Write};
-use std::ops::{AddAssign, SubAssign};
+use std::{
+    fmt::{Arguments, Formatter, Write},
+    ops::{AddAssign, SubAssign},
+};
 
 /// A formatter that indents lines.
 pub struct IndentFormatter<'a, 'i> {
@@ -35,15 +37,10 @@ impl Write for IndentFormatter<'_, '_> {
     }
 }
 
-
 impl<'a, 'i> IndentFormatter<'a, 'i> {
     /// Creates a new formatter with the given indentation level and number of spaces per indentation level.
     pub fn new(f: &'i mut Formatter<'a>, indent: &'i str) -> Self {
-        Self {
-            raw: f,
-            indent_level: 0,
-            indent_chars: indent,
-        }
+        Self { raw: f, indent_level: 0, indent_chars: indent }
     }
     /// Write the given string with the current indentation level.
     pub fn write_indent(&mut self) -> std::fmt::Result {
