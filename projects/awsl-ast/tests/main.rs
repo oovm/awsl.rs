@@ -2,7 +2,7 @@
 // mod call_chain;
 // mod declare;
 // mod for_loop;
-// mod literal;
+mod literal;
 // mod if_condition;
 //
 // use sdl_ast::SDLContext;

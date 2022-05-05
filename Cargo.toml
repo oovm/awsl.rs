@@ -4,7 +4,7 @@ default-members = [
     "projects/awsl-vm",
     "projects/awsl-pest",
     "projects/awsl-ast",
-    "projects/awsl-fmt",
+    "projects/indent-formatter",
 ]
 
 [profile.release]

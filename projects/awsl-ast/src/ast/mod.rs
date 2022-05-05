@@ -30,6 +30,7 @@ pub enum ASTKind {
     Null,
 }
 
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
 pub struct Keywords {
     pub keyword: &'static str,
 }
