@@ -3,8 +3,8 @@ use quote::quote;
 use std::{fs::File, io::prelude::*, path::Path};
 
 pub fn gen_note_down() {
-    let pest = Path::new(concat!(env!("CARGO_MANIFEST_DIR"), "./awsl.pest"));
-    let rs = Path::new(concat!(env!("CARGO_MANIFEST_DIR"), "./src/awsl.rs"));
+    let pest = Path::new(concat!(env!("CARGO_MANIFEST_DIR"), "/awsl.pest"));
+    let rs = Path::new(concat!(env!("CARGO_MANIFEST_DIR"), "/src/awsl.rs"));
 
     let derived = {
         let path = pest.to_string_lossy();

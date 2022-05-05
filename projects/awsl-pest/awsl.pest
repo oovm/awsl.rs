@@ -142,7 +142,7 @@ HTMLEscape = @{
     "&#" ~ Integer ~";"
 }
 /*====================================================================================================================*/
-data        =${template|dict|list|SpecialValue|Byte|Number|String|Symbol}
+data        = {template|dict|list|SpecialValue|Byte|Number|String|Symbol}
 
 tuple       = {"(" ~ ")"|"(" ~ expr ~ Comma ~ ")"|"(" ~ expr ~ (Comma ~ expr)* ~ Comma? ~ ")"}
 
@@ -150,7 +150,7 @@ dict        = {"{" ~ "}"|"{" ~ pair ~ (Comma ~ pair)* ~ Comma? ~ "}"}
 pair        =!{key_valid ~ Colon ~ expr}
 key_valid   =!{Integer | SYMBOL | String}
 
-list        = {"[" ~ "]"|"[" ~ expr ~ (Comma ~ expr)* ~ Comma? ~ "]"}
+list        =!{"[" ~ "]"|"[" ~ expr ~ (Comma ~ expr)* ~ Comma? ~ "]"}
 slice       =!{"[" ~ index ~ (Comma ~ index)* ~ Comma? ~ "]"}
 index       = {index_step|index_range|expr}
 index_range =!{expr? ~ Colon ~ expr?}
