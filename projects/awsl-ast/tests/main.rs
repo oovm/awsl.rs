@@ -7,6 +7,7 @@ mod literal;
 //
 // use sdl_ast::SDLContext;
 use awsl_ast::{ParserConfig, Result};
+use awsl_error::Success;
 
 #[test]
 fn ready() {
@@ -16,10 +17,7 @@ fn ready() {
 pub fn render(input: &str) -> Result<String> {
     let mut parser = ParserConfig::default();
     let out = parser.parse(input)?;
-    let mut ctx = SDLContext::default();
-    let out = ctx.evaluate(&out)?;
-    let out = ctx.render(&out)?;
-    Ok(out)
+    Success(format!("{}", out))
 }
 //
 // pub fn render_steps(input: &str) -> Result<String> {

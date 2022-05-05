@@ -19,7 +19,7 @@ pub enum IResult<T, E> {
 }
 
 impl<T, E> IResult<T, E> {
-
+    
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
