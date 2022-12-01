@@ -10,7 +10,7 @@ edition = "2018"
 
 [dependencies]
 text-utils = "0.4.3"
-url = "2.2.2"
+url = "2.3.1"
 yggdrasil-shared = "0.2.2"
 
 [dependencies.awsl-error]
